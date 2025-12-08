@@ -1,0 +1,17 @@
+/elpa/
+/eln-cache/
+*.elc
+auto-generated.el
+
+/backups/
+/autosaves/
+/auto-save-list/
+*~
+\#*\#
+
+history
+/transient/
+/undo-fu-session/
+/image-dired/
+/tramp
+.org-id-locations
