@@ -170,12 +170,20 @@
 		      :foreground (sheep/color 'fg)))
 
 ;; ---------------------------------------
-;;; 4-1. Save & Backup
+;;; 4-1. Save & Revert
 
 (setq kill-ring-max 20)
 (global-auto-revert-mode t) ;別ブランチでチェックアウト時など,ファイルの変更を自動更新
 (setq backup-directory-alist '((".*" . "~/.emacs.d/backups/")))
 (setq auto-save-file-name-transforms '((".*" "~/.emacs.d/autosaves/" t)))
+
+(use-package autorevert
+  :ensure nil
+  :hook (after-init . global-auto-revert-mode)
+  :custom
+  (global-auto-revert-non-file-buffers t)
+  (auto-revert-verbose nil)
+  (auto-revert-check-vc-info t)) ;Git Statusも反映
 
 ;; ---------------------------------------
 ;;; 4-2. History & Version
