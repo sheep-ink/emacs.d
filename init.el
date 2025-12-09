@@ -157,6 +157,7 @@
 		      :height 0.8
 		      :overline nil)
   (set-face-attribute 'org-code nil
+		      :foreground (sheep/color 'fg)
 		      :background (sheep/color 'bg-alt))
 
   ;; Tasklist
@@ -335,7 +336,6 @@
   (defun sheep/copy-to-end-of-line ()
     (interactive)
     (if (eolp)
-	(message "End of line")
       (kill-ring-save (point) (line-end-position))))
   (defun sheep/goto-home-org ()
     (interactive)
@@ -349,9 +349,9 @@
       (select-window new-window)))
   :bind
   (("M-k"     . kill-region)
-   ("C-c C-k" . kill-line)
+   ("C-c k k" . kill-line)
    ("C-w"     . sheep/copy-line)
-   ("C-c C-w" . sheep/copy-to-end-of-line)
+   ("C-c w w" . sheep/copy-to-end-of-line)
    ("C-c g h" . sheep/goto-home-org)
    ("C-c g s" . scratch-buffer)
    ("C-c g i" . sheep/open-init-file)
@@ -365,14 +365,13 @@
    ("C-c b"   . ibuffer)
    ("C-x k"   . kill-current-buffer)
    ("C-c k w" . kill-buffer-and-window)
-   ("C-x s"   . save-buffer)
-   ("C-c s a" . save-some-buffers)
-   ("C-c s o" . write-file)
    ("M-["     . beginning-of-buffer)
    ("M-]"     . end-of-buffer)
    ("C-h"     . mark-sexp)
-   ("M-n"     . kill-sexp)
-   ("M-p"     . backward-kill-sexp)
+   ("M-n"     . forward-sexp)
+   ("M-m"     . kill-sexp)
+   ("M-p"     . backward-sexp)
+   ("M-@"     . backward-kill-sexp)
    ("M-h"     . mark-word)
    ("M-j"     . backward-kill-word))
   :init
@@ -389,6 +388,8 @@
   :hook
   (org-mode . (lambda ()
                 (display-line-numbers-mode -1)))
+  :custom
+  (org-hide-emphasis-markers t) ;マークアップ記号を非表示
   :config
   (require 'org-tempo)
   (setq org-use-speed-commands t)
@@ -408,6 +409,16 @@
     (interactive)
     (end-of-line)
     (org-meta-return))
+  (defun sheep/org-kill-element ()
+    (interactive)
+    (let ((beg (point)))
+      (org-mark-element)
+      (kill-region (region-beginning) (region-end))))
+  (defun sheep/org-backward-kill-element ()
+    (interactive)
+    (let ((end (point)))
+      (org-backward-element)
+      (kill-region (point) end)))
   :bind
   (:map org-mode-map
 	("C-S-<return>" . sheep/org-insert-heading-eol)
@@ -422,7 +433,21 @@
 	("M-Y"          . org-shiftmetaup)
 	("M-U"          . org-shiftmetadown)
 	("M-H"          . org-shiftmetaleft)
-	("M-J"          . org-shiftmetaright)))
+	("M-J"          . org-shiftmetaright)
+	;; overwrite
+	("C-h"     . org-mark-element)
+	("M-n"     . org-forward-element)
+	("M-m"     . sheep/org-kill-element)
+	("M-p"     . org-backward-element)
+	("M-@"     . sheep/org-backward-kill-element)
+	("M-h"     . mark-word)))
+
+(use-package org-appear
+  :hook (org-mode . org-appear-mode)
+  :config
+  (setq org-appear-autoentities t)
+  (setq org-appear-autolinks t) 
+  )
 
 ;; ---------------------------------------
 ;;; 5-3. Markdown Mode
