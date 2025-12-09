@@ -201,6 +201,9 @@
 (use-package magit
   :custom
   (magit-display-buffer-function #'magit-display-buffer-same-window-except-diff-v1) ;現在のウィンドウに表示
+  (magit-bury-buffer-function 'magit-mode-quit-window) ;q時にBufferをKill
+  :config
+  (advice-add 'magit-commit-diff :override #'ignore) ;Diff Bufferを開かない
   :bind
   ("C-x g" . magit-status))
 
@@ -253,6 +256,8 @@
   (completion-category-overrides '((file (styles partial-completion)))))
 
 (use-package consult
+  :config
+  (add-to-list 'consult-buffer-filter "^magit") ;magit関連Bufferは非表示
   :bind
   (("C-s"     . consult-line)
    ("C-c o"   . consult-outline)
