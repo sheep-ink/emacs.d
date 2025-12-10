@@ -335,11 +335,48 @@
   (define-key key-translation-map (kbd "C-j") (kbd "<DEL>"))) ; C-jをBackSpaceに割り当て
 
 ;; ---------------------------------------
-;;; 5. Web Develop
+;;; 5. Version
+
+(use-package magit
+  :custom
+  (magit-display-buffer-function #'magit-display-buffer-same-window-except-diff-v1) ; 現在のウィンドウで開く
+  (magit-bury-buffer-function 'magit-mode-quit-window) ; 終了時にバッファを削除
+  :config
+  (advice-add 'magit-commit-diff :override #'ignore) ; コミット時にDiffを表示しない
+  :bind ("C-x g" . magit-status))
+
+;; ---------------------------------------
+;;; 6. Terminal
+
+(use-package vterm
+  :commands vterm
+  :hook
+  (vterm-mode . (lambda ()
+                  (display-line-numbers-mode -1) ; 行番号を非表示
+		  (sis-set-english) ; 起動時にIMEをOFF
+		  ))
+  :config
+  (setq vterm-max-scrollback 10000) ; スクロールバックの行数
+  :bind
+  (("C-x v"   . vterm)
+   ("C-c 3 v" . vterm-other-window)
+   :map vterm-mode-map
+   ("C-a"     . vterm-beginning-of-line)
+   ("C-e"     . vterm-end-of-line)
+   ("C-M-p"   . vterm-previous-prompt)
+   ("C-M-n"   . vterm-next-prompt)
+   ("C-y"     . vterm-yank)
+   ("M-y"     . vterm-yank-pop)
+   ("C-t"     . other-window)
+   ("C-z"     . vterm-undo)
+   ("C-c C-t" . vterm-copy-mode)))
+
+;; ---------------------------------------
+;;; 7. Web Develop
 ;; (将来的なWeb開発設定用に予約)
 
 ;; ---------------------------------------
-;;; 6. Org Mode
+;;; 8. Org Mode
 
 (use-package org
   :ensure nil
