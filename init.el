@@ -373,7 +373,7 @@
    ("M-y"     . vterm-yank-pop)
    ("C-t"     . other-window)
    ("C-z"     . vterm-undo)
-   ("C-c C-t" . vterm-copy-mode)))
+   ("C-c w w" . vterm-copy-mode)))
 
 ;; ---------------------------------------
 ;;; 7. Web Develop
