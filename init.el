@@ -228,6 +228,10 @@
 ;; ---------------------------------------
 ;;; 4-3. Editing & Completion
 
+(use-package electric
+  :ensure nil
+  :hook (after-init . electric-pair-mode)) ; カッコの入力補助
+
 (use-package sis
   :config
   (sis-ism-lazyman-config "1" "2" 'fcitx5) ; Fcitx5を使用
