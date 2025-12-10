@@ -2,12 +2,14 @@
 ;;  2. Variable Definition
 ;;  3. Appearance (Global)
 ;;  4. Functionality (Global)
-;;  5. Web Develop
-;;  6. Org Mode
-;;  7. Markdown Mode
-;;  8. Emacs Lisp Mode
-;;  9. AI Assistant
-;; 10. Auto-generated Code
+;;  5. Version
+;;  6. Terminal
+;;  7. Web Develop
+;;  8. Org Mode
+;;  9. Markdown Mode
+;; 10. Emacs Lisp Mode
+;; 11. AI Assistant
+;; 12. Auto-generated Code
 ;; ---------------------------------------
 ;;; 1. Package System
 
@@ -131,7 +133,7 @@
   (fringe-mode 11)) ; フリンジ幅設定
 
 ;; ---------------------------------------
-;;; 4. Functionality (Global--Base)
+;;; 4. Functionality (Global)
 
 (use-package emacs
   :ensure nil
@@ -177,14 +179,6 @@
   :bind ("C-x u" . vundo) ; Undo Treeの可視化
   :custom
   (vundo-glyph-alist vundo-unicode-symbols)) ; Undo Tree表示にUnicodeを使用
-
-(use-package magit
-  :custom
-  (magit-display-buffer-function #'magit-display-buffer-same-window-except-diff-v1) ; 現在のウィンドウで開く
-  (magit-bury-buffer-function 'magit-mode-quit-window) ; 終了時にバッファを削除
-  :config
-  (advice-add 'magit-commit-diff :override #'ignore) ; コミット時にDiffを表示しない
-  :bind ("C-x g" . magit-status))
 
 (use-package dired
   :ensure nil
@@ -274,7 +268,7 @@
   (corfu-preselect 'prompt)) ; 誤確定防止のためプロンプトを選択状態に
 
 ;; ---------------------------------------
-;;; 4-4. Functions & Keybindings (Global)
+;;; 4-5. Functions & Keybindings(Global)
 
 (use-package emacs
   :ensure nil
@@ -293,8 +287,7 @@
   (defun sheep/copy-to-end-of-line ()
     "カーソル位置から行末までをコピーする"
     (interactive)
-    (if (eolp)
-      (kill-ring-save (point) (line-end-position))))
+    (kill-ring-save (point) (line-end-position)))
       
   (defun sheep/goto-home-org ()
     "HOME.orgを開く"
@@ -476,7 +469,7 @@
   (setq org-appear-autolinks t)) ; リンクの自動表示を有効化
 
 ;; ---------------------------------------
-;;; 7. Markdown Mode
+;;; 9. Markdown Mode
 
 (use-package markdown-mode
   :mode
@@ -484,7 +477,7 @@
   :defer t)
 
 ;; ---------------------------------------
-;;; 8. Emacs Lisp Mode
+;;; 10. Emacs Lisp Mode
 
 (add-hook 'emacs-lisp-mode-hook
           (lambda ()
@@ -492,7 +485,7 @@
             (setq-local outline-regexp "^;;;"))) ; ;;;を見出しとして扱う
 
 ;; ---------------------------------------
-;;; 9. AI Assistant 
+;;; 11. AI Assistant 
 
 (use-package gptel
   :config
@@ -568,7 +561,7 @@
   ("C-c a <return>" . gptel-send))
 
 ;; ---------------------------------------
-;;; 10.Auto-generated Code
+;;; 12.Auto-generated Code
 
 (setq custom-file (locate-user-emacs-file "auto-generated.el")) ; Emacsが自動記述する内容をinit.elから分離
 (when (file-exists-p custom-file)
