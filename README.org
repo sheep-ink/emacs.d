@@ -1,17 +1,14 @@
-#+TITLE: .emacs.d configuration
-#+AUTHOR: Sheep Ink
-* About
+* EmacsでつくるLife Work (日本語 + Org Mode + Hugo)
 バイカル湖より深そうなEmacsの世界に入ったばかりの,Sheep Ink(羊インク)個人の設定ファイルです
 
 プレーンなEmacsをベースに,Org ModeとWeb開発(Hugo)のためのカスタマイズを施しています
-* Environment
-** Base
+** Environment
 - *OS* : Ubuntu 24.04 LTE
 - *Emacs* : GNU Emacs 30.2(PGTK build)
 - *Input Method* : Fcitx5(mozc)
-** Theme
+*** Theme
 テーマは *solarized-theme* を使用しています.solarized-lightをベースにしてFaces等の調整を加えています
-** Font Family
+*** Font Family
 - *IBM Plex Mono* : Default(半角英数)
 - *Noto Sans Mono CJK JP* : Default(全角日本語)
 - *Noto Sans CJK JP* : Org Modeの見出し
@@ -21,14 +18,14 @@
 PlemolJPをノートや執筆の用途で使うと,日本語の部分が間延びして見えるため,[[https://fonts.google.com/specimen/IBM+Plex+Mono][IBM Plex Mono]]と[[https://github.com/notofonts/noto-cjk][Noto Sans Mono CJK JP]]を組み合わせました
 
 Org ModeのTable(表)の縦線 ~|~ をピシッと揃えたくて,org-tableのみPlemolJPを使用しています.英語と日本語が混在した org-table の整形は,特に小さなフォントサイズにおいてはfaceを細かく調整しても簡単ではなく,私の環境以外においての再現性は不明です 
-* Org Mode
+** Org Mode
 org-modern などリッチなデザイン処理は施さず,インデント付きテキストのプレーンな良さをできるだけ活かす方針です
 - *見出し* : 自動インデントの機能を有効化し,見出し(Level)は5段階まで色分けしています.文字サイズは本文と同じです
 - *テキスト装飾* : Italic(斜体)を｢緑の小文字｣に,Underline(下線)を｢赤字｣に転用しています
 [[file:.github/assets/org-mode-preview-01.png]]
-* Web Develop
+** Web Develop
 Hugoを用いたWeb開発環境は準備中です.おそらくox-hugoパッケージを使用することになりそう
-* Packages
+** Packages
 採用している主なパッケージは以下のとおりです
 - *sis* : 快適な日本語入力環境
 - *crux* : 基本操作･編集の細やかな改善
@@ -38,5 +35,5 @@ Hugoを用いたWeb開発環境は準備中です.おそらくox-hugoパッケ�
 - *magit* : バージョン管理(Gitなど)
 - *vterm* : ターミナル
 - *gptel* : 生成AI連携
-* License
+** License
 MIT License
