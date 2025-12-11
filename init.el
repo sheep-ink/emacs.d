@@ -328,6 +328,7 @@
    ("C-c k w" . kill-buffer-and-window)
    ("M-["     . beginning-of-buffer)
    ("M-]"     . end-of-buffer)
+   ("M-l"     . visual-line-mode)
    ("C-h"     . mark-sexp)
    ("M-n"     . forward-sexp)
    ("M-m"     . kill-sexp)
