@@ -365,15 +365,15 @@
   (("C-x v"   . vterm)
    ("C-c 3 v" . vterm-other-window)
    :map vterm-mode-map
-   ("C-a"     . vterm-beginning-of-line)
-   ("C-e"     . vterm-end-of-line)
-   ("C-M-p"   . vterm-previous-prompt)
-   ("C-M-n"   . vterm-next-prompt)
-   ("C-y"     . vterm-yank)
-   ("M-y"     . vterm-yank-pop)
-   ("C-t"     . other-window)
-   ("C-z"     . vterm-undo)
-   ("C-c w w" . vterm-copy-mode)))
+   ("C-a"   . vterm-beginning-of-line)
+   ("C-e"   . vterm-end-of-line)
+   ("C-M-p" . vterm-previous-prompt)
+   ("C-M-n" . vterm-next-prompt)
+   ("C-y"   . vterm-yank)
+   ("M-y"   . vterm-yank-pop)
+   ("C-t"   . other-window)
+   ("C-z"   . vterm-undo)
+   ("C-w"   . vterm-copy-mode)))
 
 ;; ---------------------------------------
 ;;; 7. Web Develop
