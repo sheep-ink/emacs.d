@@ -1,6 +1,7 @@
 /elpa/
 /eln-cache/
 *.elc
+
 auto-generated.el
 
 /backups/
@@ -10,6 +11,7 @@ auto-generated.el
 \#*\#
 
 history
+.emacs.desktop*
 /transient/
 /undo-fu-session/
 /image-dired/

@@ -31,7 +31,7 @@
 ;;; 2. Variable Definition
 
 ;; File Variables
-(defvar sheep/home-org-file (expand-file-name "~/configs/HOME.org")
+(defvar sheep/home-org-file (expand-file-name "~/daily/HOME.org")
   "HOME.orgのパスの定義")
 
 ;; Font Variables
@@ -149,7 +149,6 @@
   (backup-directory-alist '((".*" . "~/.emacs.d/backups/"))) ; バックアップ保存先
   (auto-save-file-name-transforms '((".*" "~/.emacs.d/autosaves/" t))) ; 自動保存先
   ;; Window Behavior
-  (initial-buffer-choice sheep/home-org-file) ; 起動時に開くファイル
   (split-width-threshold 0)   ; 画面分割は常に左右分割を優先
   (split-height-threshold nil) ; 上下分割を抑制
   ;; Scrolling
@@ -168,6 +167,16 @@
   (auto-revert-verbose nil) ; メッセージを抑制
   (auto-revert-check-vc-info t)) ; Git等のステータス変更も検知
 
+(use-package desktop
+  :ensure nil
+  :config
+  (desktop-save-mode 1) ; 終了時のバッファ･ウィンドウ構成を復元
+  :custom
+  (desktop-save t) ; 終了時に確認せずに保存
+  (desktop-load-locked-desktop t) ; ロックファイルがあっても警告せずに読み込む
+  (desktop-restore-eager 10) ; 起動時に即座に復元するバッファ数(残りは遅延読み込み)
+  (desktop-globals-to-save nil)) ; WindowやBufferの情報のみ.emacs.desktopに保存する(savehist-modeとの競合を防ぐため)
+  
 ;; ---------------------------------------
 ;;; 5. History
 
