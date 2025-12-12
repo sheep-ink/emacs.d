@@ -1,15 +1,21 @@
 ;;  1. Package System
 ;;  2. Variable Definition
 ;;  3. Appearance (Global)
-;;  4. Functionality (Global)
-;;  5. Version
-;;  6. Terminal
-;;  7. Web Develop
-;;  8. Org Mode
-;;  9. Markdown Mode
-;; 10. Emacs Lisp Mode
-;; 11. AI Assistant
-;; 12. Auto-generated Code
+;;  4. Core Settings (Global)
+;;  5. History
+;;  6. Workspace
+;;  7. Directory
+;;  8. Mini Buffer
+;;  9. Editing & Completion
+;; 10. Functions & Keybindings (Global)
+;; 11. Version
+;; 12. Terminal
+;; 13. Web Develop
+;; 14. Org Mode
+;; 15. Markdown Mode
+;; 16. Emacs Lisp Mode
+;; 17. AI Assistant
+;; 18. Auto-generated Code
 ;; ---------------------------------------
 ;;; 1. Package System
 
@@ -133,7 +139,7 @@
   (fringe-mode 11)) ; フリンジ幅設定
 
 ;; ---------------------------------------
-;;; 4. Functionality (Global)
+;;; 4. Core Settings (Global)
 
 (use-package emacs
   :ensure nil
@@ -162,6 +168,9 @@
   (auto-revert-verbose nil) ; メッセージを抑制
   (auto-revert-check-vc-info t)) ; Git等のステータス変更も検知
 
+;; ---------------------------------------
+;;; 5. History
+
 (use-package undo-fu
   :bind
   (([remap undo] . undo-fu-only-undo) ; undoコマンドの置き換え
@@ -180,6 +189,12 @@
   :custom
   (vundo-glyph-alist vundo-unicode-symbols)) ; Undo Tree表示にUnicodeを使用
 
+;; ---------------------------------------
+;;; 6. Workspace
+
+;; ---------------------------------------
+;;; 7. Directory
+
 (use-package dired
   :ensure nil
   :hook
@@ -188,7 +203,7 @@
   (setq dired-listing-switches "-lA")) ; lsコマンドのオプション(隠しファイル表示)
 
 ;; ---------------------------------------
-;;; 4-2. Minibuffer
+;;; 8. Minibuffer
 
 (savehist-mode) ; コマンド履歴等を永続化
 
@@ -226,7 +241,7 @@
   (add-to-list 'marginalia-annotators '(file builtin))) ; ファイル候補の詳細情報は標準のものを使用
 
 ;; ---------------------------------------
-;;; 4-3. Editing & Completion
+;;; 9. Editing & Completion
 
 (use-package electric
   :ensure nil
@@ -272,7 +287,7 @@
   (corfu-preselect 'prompt)) ; 誤確定防止のためプロンプトを選択状態に
 
 ;; ---------------------------------------
-;;; 4-5. Functions & Keybindings(Global)
+;;; 10. Functions & Keybindings(Global)
 
 (use-package emacs
   :ensure nil
@@ -340,7 +355,7 @@
   (define-key key-translation-map (kbd "C-j") (kbd "<DEL>"))) ; C-jをBackSpaceに割り当て
 
 ;; ---------------------------------------
-;;; 5. Version
+;;; 11. Version
 
 (use-package magit
   :custom
@@ -351,7 +366,7 @@
   :bind ("C-x g" . magit-status))
 
 ;; ---------------------------------------
-;;; 6. Terminal
+;;; 12. Terminal
 
 (use-package vterm
   :commands vterm
@@ -377,11 +392,11 @@
    ("C-w"   . vterm-copy-mode)))
 
 ;; ---------------------------------------
-;;; 7. Web Develop
+;;; 13. Web Develop
 ;; (将来的なWeb開発設定用に予約)
 
 ;; ---------------------------------------
-;;; 8. Org Mode
+;;; 14. Org Mode
 
 (use-package org
   :ensure nil
@@ -511,7 +526,7 @@
   (setq org-appear-autolinks t)) ; リンクの自動表示を有効化
 
 ;; ---------------------------------------
-;;; 9. Markdown Mode
+;;; 15. Markdown Mode
 
 (use-package markdown-mode
   :mode
@@ -519,7 +534,7 @@
   :defer t)
 
 ;; ---------------------------------------
-;;; 10. Emacs Lisp Mode
+;;; 16. Emacs Lisp Mode
 
 (add-hook 'emacs-lisp-mode-hook
           (lambda ()
@@ -527,7 +542,7 @@
             (setq-local outline-regexp "^;;;"))) ; ;;;を見出しとして扱う
 
 ;; ---------------------------------------
-;;; 11. AI Assistant 
+;;; 17. AI Assistant 
 
 (use-package gptel
   :config
@@ -603,7 +618,7 @@
   ("C-c a <return>" . gptel-send))
 
 ;; ---------------------------------------
-;;; 12.Auto-generated Code
+;;; 18.Auto-generated Code
 
 (setq custom-file (locate-user-emacs-file "auto-generated.el")) ; Emacsが自動記述する内容をinit.elから分離
 (when (file-exists-p custom-file)
