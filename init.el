@@ -353,6 +353,7 @@
    ("M-["     . beginning-of-buffer)
    ("M-]"     . end-of-buffer)
    ("M-l"     . visual-line-mode)
+   ("M-r"     . read-only-mode)
    ("C-h"     . mark-sexp)
    ("M-n"     . forward-sexp)
    ("M-m"     . kill-sexp)
