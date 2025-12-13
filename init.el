@@ -371,6 +371,9 @@
   :custom
   (magit-display-buffer-function #'magit-display-buffer-same-window-except-diff-v1) ; 現在のウィンドウで開く
   (magit-bury-buffer-function 'magit-mode-quit-window) ; 終了時にバッファを削除
+  (magit-log-section-commit-count 50) ; Recent commitsの表示数
+  :hook
+  (magit-status-mode . sis-set-english) ; Magit起動時にIMEをOFFにする
   :config
   (advice-add 'magit-commit-diff :override #'ignore) ; コミット時にDiffを表示しない
   :bind ("C-x g" . magit-status))
