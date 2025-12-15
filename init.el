@@ -106,8 +106,11 @@
                       :foreground (sheep/color 'fg)
                       :background (sheep/color 'bg))
 
-  (set-fontset-font t 'japanese-jisx0208
-                    (font-spec :family (sheep/font 'japanese))) ; 日本語(全角)のフォントの指定
+  (dolist (script '(kana han symbol cjk-misc bopomofo))
+    (set-fontset-font t script (font-spec :family (sheep/font 'japanese))))
+  
+  ;; (set-fontset-font t 'japanese-jisx0208
+  ;;                   (font-spec :family (sheep/font 'japanese))) ; 日本語(全角)のフォントの指定
 
   (set-face-attribute 'variable-pitch nil
                       :family (sheep/font 'write-h)
