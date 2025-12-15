@@ -421,8 +421,10 @@
 (use-package org
   :ensure nil
   :hook
+   ;; 行番号を非表示
   (org-mode . (lambda ()
-                (display-line-numbers-mode -1))) ; 行番号を非表示
+                (display-line-numbers-mode 0)
+		(setq display-line-numbers nil)))
   :custom
   (org-hide-emphasis-markers t) ; マークアップ記号を隠す
   (org-use-speed-commands t)    ; スピードコマンドの有効化
