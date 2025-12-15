@@ -4,7 +4,7 @@
 ;;  4. Core Settings (Global)
 ;;  5. History
 ;;  6. Workspace
-;;  7. Directory
+;;  7. Directory & Bookmark
 ;;  8. Mini Buffer
 ;;  9. Editing & Completion
 ;; 10. Functions & Keybindings (Global)
@@ -175,7 +175,7 @@
   (desktop-save t) ; 終了時に確認せずに保存
   (desktop-load-locked-desktop t) ; ロックファイルがあっても警告せずに読み込む
   (desktop-restore-eager 10) ; 起動時に即座に復元するバッファ数(残りは遅延読み込み)
-  (desktop-globals-to-save nil)) ; WindowやBufferの情報のみ.emacs.desktopに保存する(savehist-modeとの競合を防ぐため)
+  (desktop-globals-to-save nil)) ; WindowやBufferの情報のみ.emacs.desktopに保存する(savehist-modeとの競合防止)
   
 ;; ---------------------------------------
 ;;; 5. History
@@ -202,7 +202,7 @@
 ;;; 6. Workspace
 
 ;; ---------------------------------------
-;;; 7. Directory
+;;; 7. Directory & Bookmark
 
 (use-package dired
   :ensure nil
@@ -210,6 +210,12 @@
   (dired-mode . dired-hide-details-mode) ; ファイル詳細情報を非表示
   :config
   (setq dired-listing-switches "-lA")) ; lsコマンドのオプション(隠しファイル表示)
+
+(use-package bookmark
+  :ensure nil
+  :custom
+  (bookmark-save-flag 1) ; ブックマークを~/.emacs.d/bookmarksに直ちに保存
+  )
 
 ;; ---------------------------------------
 ;;; 8. Minibuffer
@@ -236,7 +242,8 @@
    ("C-c 3 b" . consult-buffer-other-window)
    ("C-x 5 b" . consult-buffer-other-frame)
    ("M-y"     . consult-yank-from-kill-ring)
-   ("C-c m"   . consult-mark)))
+   ("C-c m"   . consult-mark)
+   ("C-x r b" . consult-bookmark)))
 
 (use-package embark
   :bind (("C-@" . embark-act))) ; アクションメニュー呼び出し

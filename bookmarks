@@ -1,0 +1,17 @@
+;;;; Emacs Bookmark Format Version 1;;;; -*- coding: utf-8-emacs; mode: lisp-data -*-
+;;; This format is meant to be slightly human-readable;
+;;; nevertheless, you probably don't want to edit it.
+;;; -*- End Of Bookmark File Format Version Stamp -*-
+(("Test"
+ (filename . "~/.emacs.d/init.el")
+ (front-context-string . "(use-package con")
+ (rear-context-string . " ; ファイルパスは部分一致\n\n")
+ (position . 7107)
+ (last-modified 26943 32523 374323 490000))
+("init/history"
+ (filename . "~/.emacs.d/init.el")
+ (front-context-string . ";;; 5. History\n\n")
+ (rear-context-string . "---------------\n")
+ (position . 5563)
+ (last-modified 26941 57788 921900 206000))
+)
