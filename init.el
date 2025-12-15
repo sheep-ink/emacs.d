@@ -170,6 +170,7 @@
 (use-package desktop
   :ensure nil
   :config
+  (add-to-list 'desktop-locals-to-save 'display-line-numbers) ; 行番号の表示設定(display-line-numbers)を保存対象リストに追加
   (desktop-save-mode 1) ; 終了時のバッファ･ウィンドウ構成を復元
   :custom
   (desktop-save t) ; 終了時に確認せずに保存
@@ -421,10 +422,8 @@
 (use-package org
   :ensure nil
   :hook
-   ;; 行番号を非表示
   (org-mode . (lambda ()
-                (display-line-numbers-mode 0)
-		(setq display-line-numbers nil)))
+                (display-line-numbers-mode -1))) ; 行番号を非表示
   :custom
   (org-hide-emphasis-markers t) ; マークアップ記号を隠す
   (org-use-speed-commands t)    ; スピードコマンドの有効化
