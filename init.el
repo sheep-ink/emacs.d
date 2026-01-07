@@ -97,20 +97,20 @@
 
 (use-package emacs
   :ensure nil
+  :hook
+  (prog-mode . display-line-numbers-mode) ; プログラミング全般で行番号を表示
+  (conf-mode . display-line-numbers-mode) ; 設定ファイル全般で行番号を表示
   :config
   ;; Fonts & Faces
   (set-face-attribute 'default nil
                       :family (sheep/font 'default)
-                      :height 109
+                      :height 94
                       :weight 'normal
                       :foreground (sheep/color 'fg)
                       :background (sheep/color 'bg))
 
   (dolist (script '(kana han symbol cjk-misc bopomofo))
-    (set-fontset-font t script (font-spec :family (sheep/font 'japanese))))
-  
-  ;; (set-fontset-font t 'japanese-jisx0208
-  ;;                   (font-spec :family (sheep/font 'japanese))) ; 日本語(全角)のフォントの指定
+    (set-fontset-font t script (font-spec :family (sheep/font 'japanese)))) ; 日本語(全角)のフォントの指定
 
   (set-face-attribute 'variable-pitch nil
                       :family (sheep/font 'write-h)
@@ -173,12 +173,12 @@
 (use-package desktop
   :ensure nil
   :config
-  (add-to-list 'desktop-locals-to-save 'display-line-numbers) ; 行番号の表示設定(display-line-numbers)を保存対象リストに追加
   (desktop-save-mode 1) ; 終了時のバッファ･ウィンドウ構成を復元
   :custom
   (desktop-save t) ; 終了時に確認せずに保存
   (desktop-load-locked-desktop t) ; ロックファイルがあっても警告せずに読み込む
   (desktop-restore-eager 10) ; 起動時に即座に復元するバッファ数(残りは遅延読み込み)
+  (desktop-scratch-buffer-save t) ; *scratch* も復元対象とする
   (desktop-globals-to-save nil)) ; WindowやBufferの情報のみ.emacs.desktopに保存する(savehist-modeとの競合防止)
   
 ;; ---------------------------------------
@@ -396,7 +396,6 @@
   :commands vterm
   :hook
   (vterm-mode . (lambda ()
-                  (display-line-numbers-mode -1) ; 行番号を非表示
 		  (sis-set-english) ; 起動時にIMEをOFF
 		  ))
   :config
@@ -424,9 +423,6 @@
 
 (use-package org
   :ensure nil
-  :hook
-  (org-mode . (lambda ()
-                (display-line-numbers-mode -1))) ; 行番号を非表示
   :custom
   (org-hide-emphasis-markers t) ; マークアップ記号を隠す
   (org-use-speed-commands t)    ; スピードコマンドの有効化
