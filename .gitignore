@@ -1,19 +1,9 @@
-/elpa/
-/eln-cache/
-*.elc
+*
 
-auto-generated.el
+!.gitignore
+!emacs.org
+!README.org
+!abbrev_defs
 
-/backups/
-/autosaves/
-/auto-save-list/
-*~
-\#*\#
-
-history
-.emacs.desktop*
-/transient/
-/undo-fu-session/
-/image-dired/
-/tramp
-.org-id-locations
+!.github/
+!.github/**

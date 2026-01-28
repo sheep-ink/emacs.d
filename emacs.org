@@ -1,0 +1,1515 @@
+* ベースとなる操作方法
+
+| Emacs Quit       | C-x C-c                 |
+| 文字サイズの変更 | C-x C-+/C-x C--/C-x C-0 |
+
+** カーソルの移動
+| 上の行へ      | C-p |                                      |
+| 下の行へ      | C-n |                                      |
+| 行頭へ移動*   | C-a | crux-move-begining-of-lineに差し替え |
+| 行末へ移動    | C-e |                                      |
+| 右に1文字移動 | C-f |                                      |
+| 左に1文字移動 | C-b |                                      |
+| 右に1単語移動 | M-f |                                      |
+| 左に1単語移動 | M-b |                                      |
+
+** 行の操作
+| 改行                  | C-m, RET |                                       |
+| 空行を追加            | C-o      | open-line                             |
+| 空行を追加(行の途中)* | M-o      | crux-smart-open-line                  |
+| 行複製*               | C-c d    | crux-duplicate-current-line-on-region |
+| 行の入れ替え          | C-x C-t  |                                       |
+
+** 入力·削除
+| N回分Sを入力   | C-<N> S |
+| コメントを入力 | M-;     |
+| 1字削除        | C-d     |
+| 1字BS          | C-j     |
+
+* 設定ファイルの概要
+
+** init.el
+*** 全体構造
+1. グローバル(パッケージシステム > 変数 > 外観 > 機能)
+2. 各モード
+3. サブシステム(Emacs内アプリのように動作するパッケージ)
+
+#+begin_src emacs-lisp :tangle init.el :noweb yes
+<<file-header>>
+
+;;;; Global Settings ------------------------------------------
+<<package-system>>
+
+<<variable>>
+
+;;; Appearance
+<<theme>>
+<<global-face>>
+
+;;; Input & Editing
+<<ddskk>>
+<<text-editing>>
+<<input-completion>>
+<<history>>
+<<mini-buffer>>
+
+;;; UI & Base
+<<ui-and-base>>
+<<auto-revert>>
+
+;;; Workspace
+<<desktop>>
+<<project>>
+<<tab-bar>>
+
+<<directory>>
+<<bookmark>>
+
+;;;; Mode Settings --------------------------------------------
+<<org-face>>
+<<org-mode>>
+<<markdown-mode>>
+<<emacs-lisp-mode>>
+
+;;;; Subsystem Settings ---------------------------------------
+<<magit>>
+<<vterm>>
+<<gptel>>
+
+<<file-footer>>
+#+end_src
+
+*** 設定ファイルのHeader/Footer
+
+**** Header
+=early.init.el= のメタデータを定義する
+_!!_ HeaderおよびFooterは省略しても動作上の問題はない
+
+- ~Package --- ...~ : ファイルの概要を示す
+- ~lexical-binding: t~ : Emacs24.1以降で導入された静的スコープを有効化する
+- ~Code~ : プログラムの開始位置を示すマーカー
+
+#+begin_src emacs-lisp :noweb-ref file-header
+;;; package --- 設定ファイル -*- lexical-binding: t; -*-
+;;; Commentary:
+;;; Code:
+#+end_src
+
+**** Footer
+- ~(provide 'early-init)~ : このファイルが =early-init= という機能を提供することを宣言
+- ~early-init.el ends here~ : ファイルの終端を明示的に示す
+
+#+begin_src emacs-lisp :noweb-ref file-footer
+(provide 'init)
+;;; init.el ends here
+#+end_src
+
+*** 設定ファイルの格納場所 .emacs.d
+Emacsの設定に必要なファイルは =~/.emacs.d/= に格納するのがデフォルトである
+
+**** ディレクトリ
+- eln-cache: ネイティブコンパイルされた.elnファイルのキャッシュ
+- elpa: パッケージの保管場所
+- image-dired: image-dired-mode使用時のサムネイル画像のキャッシュ
+- transient: Transientパッケージ(Magitなど)の履歴·設定の保存
+- undo-fu-session: Undo履歴のデータ
+
+**** ファイル
+- abbrev_defs: Abbrevで設定した略語定義
+- bookmarks: ブックマーク
+- history: Mini Bufferの入力履歴
+- kkcrc: DDSKKの設定
+- places: save-place-modeによるカーソル位置のデータ
+- projects: プロジェクトの定義
+- tramp: TRAMPのキャッシュ·接続履歴
+- .emacs.desktop, .emacs.desktop.lock: desktop-save-modeのセッション保存データ
+
+**** .gitignore
+=*= で全てのファイルを除外し =!= で必要なファイルのみを追加する
+
+_!!_ Org Modeのコードブロックでは,行頭の =*= は自動てエスケープされ =,= が付く.抽出(tangle)の際には除去される
+
+#+begin_src text :tangle .gitignore
+,*
+
+!.gitignore
+!emacs.org
+!README.org
+!abbrev_defs
+
+!.github/
+!.github/**
+#+end_src
+
+** eartly-init.el
+=init.el= より前に読み込まれる.GUIやパッケージシステムの初期化よりも先に実行されるため,以下のような設定に適する
+
+- フレームの外観: 起動前に設定することで起動時のチラつきがなくなる
+- パッケージ初期化の制御
+
+*** 全体構造
+#+begin_src emacs-lisp :tangle early-init.el :noweb yes
+;;; package --- 初期設定ファイル -*- lexical-binding: t; -*-
+;;; Commentary:
+;;; Code:
+
+<<early-init-body>>
+
+(provide 'early-init)
+;;; early-init.el ends here
+#+end_src
+
+*** 各設定
+パッケージアーカイブ(melpa等)を設定. ~(setq package-enable-at-startup nil)~ で自動ロードを抑制
+パッケージの初期化と読み込みは =init.el= で行なう
+
+#+begin_src emacs-lisp :noweb-ref early-init-body
+(require 'package)
+(add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/") t)
+(setq package-enable-at-startup nil)
+#+end_src
+
+フレーム属性の設定(画面最大化,タイトルバー非表示,フレーム内側の余白設定)
+#+begin_src emacs-lisp :noweb-ref early-init-body
+(push '(fullscreen . maximized) default-frame-alist)
+(push '(undecorated . t) default-frame-alist)
+(push '(internal-border-width . 12) default-frame-alist)
+#+end_src
+
+UIモードの無効化(メニューバー,ツールバー,スクロールバー)
+#+begin_src emacs-lisp :noweb-ref early-init-body
+(menu-bar-mode -1)
+(tool-bar-mode -1)
+(scroll-bar-mode -1)
+#+end_src
+
+* 入力システム·編集·補完
+
+**  DDSKK
+[[https://github.com/skk-dev/ddskk][GitHub]] | [[https://ddskk.readthedocs.io/ja/latest/index.html][Docs]]
+
+SKK辞書 > Google APIの順に検索·変換される
+
+~pdtk-use-im...~ でOS側のIMEをEmacs内ではOFFにすることで,キーバインドに =<zenkaku/hankaku>= が使える. ~:map~ を用いて検索(isearch)時も有効化している
+=sheep/skk-mode-force-on= 関数で,Emacsでskk-modeおよびskk-latin-mode(半角英数)をデフォルトにしている.Emacs起動時のカーソル色がひらがな用(skk-cursor-hiragana-color)になるため,半角英数用(skk-cursor-latin-color)を明示的に指定している
+
+_!!_ 新しい設定項目を追加するときは =use-package= のどこに記述すると動くか模索が必要.まずは外で試すのもアリ
+
+#+begin_src emacs-lisp :noweb-ref ddskk
+(use-package ddskk
+  :init
+  ;; 入力ルールのカスタマイズ
+  (setq skk-rom-kana-rule-list
+	'(("["  nil "｢")
+          ("]"  nil "｣")
+	  ("!"  nil "!")
+	  ("?"  nil "?")
+          (";"  nil ";")
+          (":"  nil ":")
+	  ("z/" nil "·")
+	  ("z?" nil "/")
+	  ("z-" nil "-")))
+
+  ;; Google API for Japanese Input を有効化
+  (with-eval-after-load 'skk-vars
+    (require 'skk-search-web)
+    (add-to-list 'skk-search-prog-list
+                 '(skk-search-web 'skk-google-cgi-api-for-japanese-input)
+                 t))
+
+  ;; isearchでもssk-modeを使用する
+  (with-eval-after-load 'isearch
+    (add-hook 'isearch-mode-hook #'skk-isearch-mode-setup)
+    (add-hook 'isearch-mode-end-hook #'skk-isearch-mode-cleanup))
+
+  ;; PGTK環境でOS側のIMEをOFF
+  (when (featurep 'pgtk)
+    (setq pgtk-use-im-context-on-new-connection nil))
+
+  (defun sheep/skk-mode-force-on ()
+    "skk-modeを有効化し,skk-latin-modeに切り替える"
+    (when (fboundp 'skk-mode)
+      ;; skk-modeがオフの場合のみ有効化
+      (unless (bound-and-true-p skk-mode)
+	(skk-mode 1))
+      ;; skk-latin-modeを有効化
+      (skk-latin-mode 1)
+      ;; skk-latin-mode用のカーソル色を指定
+      (when (and (boundp 'skk-cursor-latin-color)
+		 skk-cursor-latin-color)
+	(set-cursor-color skk-cursor-latin-color))))
+
+  :hook
+  ;; skk-modeをオン,入力モードをskk-latin-modeに
+  ;; (Emacs起動·ファイルを開く·バッファ切り替え·Vterm起動·Gptel起動·コミットメッセージ編集のとき)
+  ((after-init find-file vterm-mode gptel-mode git-commit-mode) . sheep/skk-mode-force-on)
+  ;; (Window,Buffer切り替えのとき)
+  (window-selection-change-functions . (lambda (_) (sheep/skk-mode-force-on)))
+
+  ;; 変換時のfaceを設定
+  (skk-load . (lambda ()
+                (set-face-attribute 'skk-henkan-face-default nil
+                                    :foreground (sheep/color 'fg-henkan)
+                                    :background (sheep/color 'bg-henkan))))
+
+  :custom
+  (skk-large-jisyo "/usr/share/skk/SKK-JISYO.L") ; 基本辞書
+  (skk-kutouten-type 'en)                        ; 句読点は英文スタイル
+  (skk-kuten-touten-alist '((en . ("." . ",")))) ; 半角の,.を句読点として定義
+
+  ;; カーソル色
+  (skk-cursor-latin-color (sheep/color 'cursor-en))    ; 英数
+  (skk-cursor-hiragana-color (sheep/color 'cursor-jp)) ; ひらがな
+  (skk-cursor-katakana-color (sheep/color 'cursor-ka)) ; カタカナ
+
+  :bind
+  (("C-<zenkaku-hankaku>" . skk-latin-mode) ; 英数切り替え
+   ("<zenkaku-hankaku>"   . skk-kakutei)    ; 確定·日本語切り替え
+
+   ;; isearchでも入力切り替えを有効化
+   :map isearch-mode-map
+   ("C-<zenkaku-hankaku>" . skk-isearch-skk-mode)  ; 英数切り替え
+   ("<zenkaku-hankaku>"   . skk-isearch-newline))) ; 確定·日本語切り替え
+#+end_src
+
+*** 記号の入力
+デフォルトで設定されているものから抜粋(カスタム設定はコード参照)
+| z[ | 『  |
+| z] | 』  |
+| z, | ‥ |
+| z. | …  |
+
+*** 未使用の機能
+#+begin_src emacs-lisp
+;; :init
+(setq skk-search-sagyo-henkaku t) ; サ変動詞変換
+
+;; :custom
+(skk-search-katakana t) ; カタカナ変換
+#+end_src
+
+*** 個人辞書
+個人辞書 =~/.skk-jisyo= はユーザーの変換履歴を記録する. ~M-x skk-sisyo-edit~ で編集できるが,基本的に放置でよい.
+変換を確定すると誤変換であっても個人辞書に自動登録される.C-gで確定前にキャンセルするのが望ましいが,実は誤変換が登録されても実害は少ない.正しい変換を繰り返し使えばそれが個人辞書の上位に来て,すなわち変換候補の上位に来る.辞書に登録された誤変換は気が向いたときに気づいたら消す程度で十分なようである
+
+** テキスト編集
+#+begin_src emacs-lisp :noweb-ref text-editing
+(use-package emacs
+  :ensure nil
+  :config
+  (defun sheep/copy-line ()
+    "現在行をコピーする"
+    (interactive)
+    (beginning-of-line)
+    (set-mark-command nil)
+    (forward-line 1)
+    (kill-ring-save (point) (mark))
+    (forward-line -1)
+    (deactivate-mark))
+
+  (defun sheep/copy-to-end-of-line ()
+    "カーソル位置から行末までをコピーする"
+    (interactive)
+    (kill-ring-save (point) (line-end-position)))
+
+  :bind
+  (("C-k"     . kill-region)
+   ("C-c k k" . kill-line)
+   ("C-w"     . kill-ring-save)
+   ("M-w"     . sheep/copy-line)
+   ("C-c w w" . sheep/copy-to-end-of-line)
+   ("C-h"     . mark-sexp)
+   ("M-n"     . forward-sexp)
+   ("M-m"     . kill-sexp)
+   ("M-p"     . backward-sexp)
+   ("M-@"     . backward-kill-sexp)
+   ("M-h"     . mark-word)
+   ("M-j"     . backward-kill-word))
+  :init
+  (define-key key-translation-map (kbd "C-j") (kbd "<DEL>")))
+#+end_src
+
+*** 選択·Kill·コピー
+| markからpointまでkill*    | C-k     | Default:C-w                                  |
+| 行削除*                   | M-k     | kill-line>crux-kill-whole-lineに差し替え     |
+| カーソルから行末までkill* | C-c k k | kill-line                                    |
+| markからpointまでcopy*    | C-w     |                                              |
+| 行コピー*                 | M-w     | 自作関数                                     |
+| カーソルから行末までcopy* | C-c w w | 自作関数                                     |
+| Yanking                   | C-y     |                                              |
+| Yankingの履歴*            | M-y     | yank-pop>consult-yank-from-kill-ring差し替え |
+| markのセット              | C-SPACE | Kill-Ringを切りたいときにも用いる            |
+| 全て選択                  | C-x h   |                                              |
+
+*** 高度な編集
+KillおよびBack KillはKill Ringに記録される
+Sexp系は,Org ModeではElement系のコマンドに置き替わる
+
+| Word 選択*      | M-h | Default:M-@             |
+| Word Kill       | M-d |                         |
+| Word Back Kill  | M-j | Default:M-<backspace>   |
+| Sexp 選択*      | C-h | Default:C-M-SPACE       |
+| Sexp Forword*   | M-n | Default:C-M-f           |
+| Sexp Kill*      | M-m | Default:C-M-k           |
+| Sexp Backword*  | M-p | Default:C-M-b           |
+| Sexp Back Kill* | M-@ | Default:C-M-<backspace> |
+
+** 入力の機能強化·補完
+*** 入力の機能強化 Crux
+[[https://github.com/bbatsov/crux?tab=readme-ov-file#keybindings][Commands-GitHub]]
+
+_!!_ * ベースとなる操作方法 や ** テキスト編集 にcruxコマンドのキーバインドの説明があるため,設定変更の際は修正が必要
+
+~crux-move-beginning-of-line~ は1回目は実質的な行の先頭に移動する.すなわちスペースやOrg Modeの見出し記号*等を考慮し,テキストやコードの1文字目にカーソルが移動する.さらに実行すると本来の行頭に移動する
+
+#+begin_src emacs-lisp :noweb-ref input-completion
+(use-package crux
+  :bind
+  (("M-k"     . crux-kill-whole-line)                  ; 行全体を削除
+   ("C-a"     . crux-move-beginning-of-line)           ; 行の実質的な行頭に移動
+   ("M-o"     . crux-smart-open-line)                  ; 行の途中でも下に空行を追加しカーソル移動
+   ("C-c d"   . crux-duplicate-current-line-or-region) ; 現在の行またはリージョンを下に複製
+   ("C-c s r" . crux-rename-file-and-buffer)           ; 現在のファイル名とBuffer名を変更
+   ("C-c t"   . crux-transpose-windows)))              ; 2つのウィンドウ間でBufferを入れ替える
+#+end_src
+
+*** 行移動 Move Text
+[[https://github.com/emacsfodder/move-text][GitHub]]
+
+選択範囲を指定している場合は,その範囲全体を移動できる
+
+_!!_ Org Modeでは使えない(ただしOrg Modeは多くの要素がデフォルトで移動可能である)
+
+#+begin_src emacs-lisp :noweb-ref input-completion
+(use-package move-text
+  :config
+  (defun my/indent-region-advice (&rest ignored)
+    "移動後に自動的にインデントを調整する"
+    (let ((deactivate deactivate-mark))
+      (if (region-active-p)
+          (indent-region (region-beginning) (region-end))
+        (indent-region (line-beginning-position) (line-end-position)))
+      (setq deactivate-mark deactivate)))
+
+  (advice-add 'move-text-up :after #'my/indent-region-advice)
+  (advice-add 'move-text-down :after #'my/indent-region-advice)
+  :bind
+  (("C-M-y" . move-text-up)
+   ("C-M-u" . move-text-down)))
+#+end_src
+
+*** 自動補完 Corfu
+[[https://github.com/minad/corfu][GitHub]]
+
+#+begin_src emacs-lisp :noweb-ref input-completion
+(use-package corfu
+  :init
+  (setq global-corfu-modes '(not org-mode markdown-mode)) ; global-corfu-modeから除外するmodeを設定
+  (global-corfu-mode)                                     ; global-corfu-modeを有効化
+
+  :custom
+  (corfu-auto t)             ; 自動ポップアップ
+  (corfu-auto-delay 0.2)     ; 表示遅延
+  (corfu-auto-prefix 2)      ; 発動文字数
+  (corfu-cycle t)            ; 候補リストを循環
+  (corfu-preselect 'prompt)) ; 誤確定防止のためプロンプトを選択状態に
+#+end_src
+
+*** 静的略称展開 Abbrev
+=SPC , .= 等で展開される(行末のスペースは改行すれば自動削除される)
+
+_!!_ abbrev定義を書き替える場合, ~M-x edit-abbrevs~ で従前の定義の行を削除する必要がある
+
+#+begin_src emacs-lisp :noweb-ref input-completion
+(use-package abbrev
+  :ensure nil
+  :hook
+  ;; Abbrevを有効化するmode
+  (org-mode . abbrev-mode)
+
+  :custom
+  (abbrev-file-name (locate-user-emacs-file "abbrev_defs")) ; abbrevの保存先
+  (save-abbrevs 'silently)                                  ; Buffer終了時に自動保存
+
+  :config
+  ;; Org Mode用のabbrev定義
+  (define-abbrev-table 'org-mode-abbrev-table
+    '(("zl" "[[][]]" nil :count 0)
+      ("zc" "_!!_" nil :count 0)
+      ("zs" "_START_" nil :count 0)
+      ("zb" "_BREAK_" nil :count 0)
+      ("ze" "_END_" nil :count 0)
+      ("zd" "💎" nil :count 0)
+      ("zw" "🧭" nil :count 0)
+      ("za" "🎨" nil :count 0)
+      ("zem" "emacs-lisp" nil :count 0)
+      ("zn" ":noweb-ref" nil :count 0))))
+#+end_src
+
+複数のmodeを指定するときは以下のように全体を()で囲う
+#+begin_src emacs-lisp
+:hook
+((org-mode . abbrev-mode)
+ (markdown-mode . abbrev-mode))
+#+end_src
+
+*** カッコの入力補完 Electric Pair
+対応する閉じカッコや引用符を自動的に挿入する
+
+#+begin_src emacs-lisp :noweb-ref input-completion
+(use-package elec-pair
+  :ensure nil
+  :config
+  (electric-pair-mode))
+#+END_SRC
+
+*** 可視テキスト内移動 Avy
+[[https://github.com/abo-abo/avy][GitHub]]
+
+_!!_ Org Modeのような構造が複雑で(かつ長い)ファイルではタイムアウトエラーが生じやすいので =avy-temeout-seconds= の値を =1.0= 以上にしておく
+
+#+begin_src emacs-lisp :noweb-ref input-completion
+(use-package avy
+  :config
+  (setopt avy-timeout-seconds 1.0)                ; 入力後の待機時間
+  (setopt avy-keys '(?a ?s ?d ?f ?g ?h ?j ?k ?l)) ; ヒントに使用する文字(ホームポジション優先)
+  (setopt avy-single-candidate-jump t)            ; 候補が1つだけの時は自動的にジャンプ
+
+  :bind
+  (("C-;" . avy-goto-char-timer)))
+#+end_src
+
+** 履歴の管理 History
+*** Undo Fu
+#+begin_src emacs-lisp :noweb-ref history
+(use-package undo-fu
+  :bind
+  (([remap undo] . undo-fu-only-undo)
+   ([remap undo-only] . undo-fu-only-undo)
+   ("C-z" . undo-fu-only-undo)
+   ("M-z" . undo-fu-only-redo)))
+#+end_src
+
+| undo* | C-z | undo-fu-only-undo |
+| redo* | M-z | undo-fu-only-redo |
+
+#+begin_src emacs-lisp :noweb-ref history
+(use-package undo-fu-session
+  :config
+  (setq undo-fu-session-incompatible-files '("/COMMIT_EDITMSG\\'" "/git-rebase-todo\\'"))
+  (setq undo-fu-session-file-limit 100)
+  (global-undo-fu-session-mode))
+#+end_src
+
+*** Vundo
+#+begin_src emacs-lisp :noweb-ref history
+(use-package vundo
+  :bind ("C-x u" . vundo)
+  :custom
+  (vundo-glyph-alist vundo-unicode-symbols))
+#+end_src
+
+| 履歴ツリーの表示* | C-x u | vundo |
+
+*** カーソル位置の保存 Save Place
+ファイルを開いたときに,前回閉じたときのカーソル位置を復元する
+
+#+begin_src emacs-lisp :noweb-ref history
+(use-package saveplace
+  :ensure nil
+  :init
+  (save-place-mode))
+#+end_src
+
+* 検索
+
+| 検索(後方)      | C-s   | isearch-forward     |
+| 検索(前方)      | C-r   | isearch-backword    |
+| 検索>置換(対話) | M-%   | yで置換,nでスキップ |
+| 検索(行)*       | C-c l | consult-line        |
+| アウトライン*   | C-c o | consult-outline     |
+
+** isearch
+キーワード入力後,C-sで次候補,C-rで前候補に移動し,RETで確定する
+
+* UI & Base
+
+画面表示(Face以外)と基本的な挙動を設定する
+
+#+begin_src emacs-lisp
+(use-package recentf
+  :ensure nil
+  :config
+  (setopt recentf-max-saved-items 1024) ;; 保存する履歴の最大数
+  (recentf-mode))
+
+
+
+(use-package subword
+  :ensure nil
+  :init
+  (global-subword-mode))
+
+(use-package delsel
+  :ensure nil
+  :config
+  (delete-selection-mode))
+#+end_src
+
+#+begin_src emacs-lisp :noweb-ref ui-and-base
+(use-package emacs
+  :ensure nil
+  :init
+  ;; 精密スクロールの有効化
+  (when (fboundp 'pixel-scroll-precision-mode)
+    (pixel-scroll-precision-mode 1))
+
+  :custom
+  ;; Interaction
+  (use-short-answers t) ; yes-or-noをy-or-nに変更
+
+  ;; Save & Revert
+  (kill-ring-max 20)                      ; Kill Ringの最大数
+  (save-interprogram-paste-before-kill t) ; Kill Ringに新しいテキストを追加する前にクリップボードの内容を保存
+  (make-backup-files nil)                 ; バックアップファイルを作成しない
+  (create-lockfiles nil)                  ; ロックファイルを作成しない
+  (delete-by-moving-to-trash t)           ; 削除したファイルをゴミ箱に移動
+
+  ;; Window & Buffer
+  (split-width-threshold 0)      ; 水平分割を優先
+  (split-height-threshold nil)   ; 垂直分割を抑制
+  (scroll-conservatively 101)    ; スクロール時の画面飛びを防止
+  (scroll-margin 0)              ; スクロールマージンなし
+  (show-trailing-whitespace t)   ; 行末の空白文字を可視化
+  (initial-scratch-message nil)  ; *scratch*の初期メッセージを非表示に
+  (initial-major-mode 'org-mode) ; *scratch*の初期モードをOrg Modeに
+
+  :config
+  (defun sheep/find-home ()
+    "HOME.orgを開く"
+    (interactive)
+    (find-file "~/daily/HOME.org"))
+
+  (defun sheep/find-daily ()
+    "DAILY.orgを開く"
+    (interactive)
+    (find-file "~/daily/DAILY.org"))
+
+  (defun sheep/find-lifelog ()
+    "LIFELOG.orgを開く"
+    (interactive)
+    (find-file "~/daily/LIFELOG.org"))
+
+  (defun sheep/find-init ()
+    "設定ファイル(emacs.org)を開く"
+    (interactive)
+    (find-file "~/.emacs.d/emacs.org"))
+
+  (defun sheep/split-window-and-focus ()
+    "画面を右に分割してフォーカスを移動する"
+    (interactive)
+    (let ((new-window (split-window-right)))
+      (select-window new-window)))
+
+  :bind
+  (("C-c g h" . sheep/find-home)    ; HOME.orgを開く
+   ("C-c g d" . sheep/find-daily)   ; DAILY.orgを開く
+   ("C-c g l" . sheep/find-lifelog) ; LIFELOG.orgを開く
+   ("C-c g i" . sheep/find-init)    ; 設定ファイル(emacs.org)を開く
+   ("C-c g s" . scratch-buffer)     ; *scratch*を開く
+   ("C-c g p" . previous-buffer)    ; 前のBuffer
+   ("C-c g n" . next-buffer)        ; 次のBuffer
+
+   ("C-x f"   . find-file)
+   ("C-c 3 f" . find-file-other-window)
+   ("C-x 3"   . sheep/split-window-and-focus)
+
+   ("C-c b"   . ibuffer)
+
+   ("C-x k"   . kill-current-buffer)
+   ("C-c k w" . kill-buffer-and-window)
+   ("C-x s"   . save-buffer)
+   ("C-c s s" . save-some-buffers)
+   ("C-c s n" . write-file)
+
+   ("C-t"     . other-window)
+   ("C-x o"   . other-frame)
+
+   ("M-["     . beginning-of-buffer)
+   ("M-]"     . end-of-buffer)
+
+   ("M-l"     . visual-line-mode)
+   ("M-r"     . read-only-mode)))
+#+end_src
+
+** UIの階層構造
+- Frame: OSレベルのウィンドウ
+  - Window
+    - Display Area: Bufferの本体
+    - Mode Line: Bufferのステータス
+  - Echo Area(通知)/Minibuffer(コマンド入力·検索)
+
+** Frame
+| Current Frame Close       | C-x 5 0 |                                      |
+| Current Frame以外を Close | C-x 5 1 |                                      |
+| New Frame                 | C-x 5 2 |                                      |
+| Find File Other Frame     | C-x 5 f |                                      |
+| Switch Buffer Other Frame | C-x 5 b | consult-buffer-other-frameに差し替え |
+| Other Frame*              | C-x o   | Default:C-x 5 o                      |
+
+** Window
+| Current Window Close        | C-x 0 |                                    |
+| 現在のWindow以外をClose     | C-x 1 |                                    |
+| Windowを上下に分割          | C-x 2 |                                    |
+| Windowを左右に分割          | C-x 3 |                                    |
+| Other Window*               | C-t   | Default:C-x o                      |
+| Windowの入れ替え*           | C-c t | crux-transpose-windows             |
+| 他Windowを次の画面へ        | C-M-v |                                    |
+| 他Windowを前の画面へ        | C-M-V |                                    |
+| Windowの横幅を広げる        | C-x } | C-N C-x } のNに,移動文字数を設定可 |
+| Windowの横幅を狭める        | C-x { |                                    |
+| Windowの高さを拡大          | C-x ^ |                                    |
+
+** Buffer
+*** 開く·切り替え
+| New File*                 | C-x f   | Default:C-x C-f                         |
+| New File(other window)*   | C-c 3 f | find-file-other-window                  |
+| New File(read-only)       | C-x C-r |                                         |
+| Bufferの切り替え*         | C-x b   | switch-to-buffer>consult-buffer差し替え |
+| ibufferの表示*            | C-c b   |                                         |
+| New WindowにBufferを表示* | C-c 3 b | consult-buffer-other-window             |
+
+*** Buffer内の操作
+| Bufferの先頭へ*                  | M-[     | Default:M-<                   |
+| Bufferの末尾へ*                  | M-]     | Default:M->                   |
+| 次の画面へ                       | C-v     |                               |
+| 前の画面へ                       | M-v     |                               |
+| カーソル行を画面中央へ>上端>下端 | C-l     |                               |
+| 折返しモードの切り替え*          | M-l     |                               |
+| read-onlyに切り替え*             | M-r     |                               |
+
+*** Kill·保存
+| Bufferの消去*                    | C-x k   | kill-current-bufferに差し替え |
+| BufferとWindowの消去*            | C-c k w | Default:C-x 4 0               |
+| Bufferの保存(current)*           | C-x s   | Default:C-x C-s               |
+| Bufferの保存(1つずつ確認)*       | C-c s s | Default:C-x s                 |
+| Bufferの別名保存*                | C-c s n | Default:C-x C-w               |
+| Buffer & File名の変更*           | C-c s r | crux-rename-file-and-buffer   |
+
+** Mini Buffer
+*** コマンド履歴の保存 Savehist Mode
+Mini Bufferの入力履歴や,検索·置換の履歴などを保存する
+
+#+begin_src emacs-lisp :noweb-ref mini-buffer
+(use-package savehist
+  :ensure nil
+  :init
+  (savehist-mode))
+#+end_src
+*** Vertico
+#+begin_src emacs-lisp :noweb-ref mini-buffer
+(use-package vertico
+  :init
+  (vertico-mode)
+  :custom
+  (vertico-count 20))
+#+end_src
+*** Orderless
+#+begin_src emacs-lisp :noweb-ref mini-buffer
+(use-package orderless
+  :custom
+  (completion-styles '(orderless basic))
+  (completion-category-defaults nil)
+  (completion-category-overrides '((file (styles partial-completion)))))
+#+end_src
+
+*** Consult
+#+begin_src emacs-lisp :noweb-ref mini-buffer
+(use-package consult
+  :config
+  (add-to-list 'consult-buffer-filter "^magit")
+
+  (defvar sheep/consult-tab-source
+    `(:name "Tab Bar"
+      :narrow ?t
+      :category tab-bar
+      :face consult-file
+      :items ,(lambda () (mapcar (lambda (tab) (alist-get 'name tab)) (tab-bar-tabs)))
+      :action ,(lambda (cand) (tab-bar-select-tab-by-name cand))))
+
+  (add-to-list 'consult-buffer-sources 'sheep/consult-tab-source 'append)
+
+  :bind
+  (("C-c l"   . consult-line)
+   ("C-c o"   . consult-outline)
+   ("C-x b"   . consult-buffer)
+   ("C-c 3 b" . consult-buffer-other-window)
+   ("C-x 5 b" . consult-buffer-other-frame)
+   ("M-y"     . consult-yank-from-kill-ring)
+   ("C-c m"   . consult-mark)
+   ("C-x r b" . consult-bookmark)
+   ("C-x p b" . consult-project-buffer)
+   ("C-x p g" . consult-ripgrep)))
+#+end_src
+
+*** Embark
+#+begin_src emacs-lisp :noweb-ref mini-buffer
+(use-package embark
+  :bind (("C-@" . embark-act)))
+#+end_src
+| Actionリストを表示* | C-@ | embark-act |
+#+begin_src emacs-lisp :noweb-ref mini-buffer
+(use-package embark-consult
+  :after (embark consult))
+#+end_src
+*** Marginalia
+#+begin_src emacs-lisp :noweb-ref mini-buffer
+(use-package marginalia
+  :init (marginalia-mode)
+  :config
+  (add-to-list 'marginalia-annotators '(file builtin)))
+#+end_src
+
+** 自動再読み込み Auto Revert
+Bufferで開いているファイルが外部で変更されたとき,自動で再読み込みを行なう.Gitのブランチ切り替え,PrettierやLint系ツールの実行時など
+
+#+begin_src emacs-lisp :noweb-ref auto-revert
+(use-package autorevert
+  :ensure nil
+  :hook (after-init . global-auto-revert-mode) ; 起動後にAuto Revertを有効化
+  :custom
+  (global-auto-revert-non-file-buffers t) ; ディレクトリのBufferやBufferリスト等も再読み込みの対象にする
+  (auto-revert-verbose nil)               ; 再読み込み時のメッセージを非表示にする
+  (auto-revert-check-vc-info t))          ; Gitのステータス情報も再読み込みの対象にする
+#+end_src
+
+* ワークスペース Workspace
+
+** Desktop
+#+begin_src emacs-lisp :noweb-ref desktop
+(use-package desktop
+  :ensure nil
+  :config
+  (desktop-save-mode 1)
+  :custom
+  (desktop-save t)
+  (desktop-load-locked-desktop t)
+  (desktop-restore-eager 10)
+  (desktop-scratch-buffer-save t)
+  (desktop-globals-to-save nil))
+#+end_src
+** Project
+#+begin_src emacs-lisp :noweb-ref project
+(use-package project
+  :ensure nil
+  :custom
+  (project-vc-extra-root-markers '(".git"))
+  :config
+  (defun sheep/project-switch-to-new-tab-and-dired ()
+    "新しいタブを作成し、プロジェクトのルートをDirvish(Dired)で開く"
+    (interactive)
+    (let ((dir (project-root (project-current t))))
+      (tab-bar-new-tab)
+      (dired dir)))
+
+  (setq project-switch-commands
+        '((sheep/project-switch-to-new-tab-and-dired "New Tab & Dirvish" "n")
+          (project-find-file "Find file" "f")
+          (magit-project-status "Magit" "m")
+          (project-eshell "Eshell" "e"))))
+#+end_src
+** Tab Bar
+#+begin_src emacs-lisp :noweb-ref tab-bar
+(use-package tab-bar
+  :ensure nil
+  :init
+  (tab-bar-mode 1)
+  (tab-bar-history-mode 1)
+  :custom
+  (tab-bar-show nil)
+  (tab-bar-new-tab-choice sheep/home-org-file)
+  :bind
+  ("C-c <left>"  . tab-bar-history-back)
+  ("C-c <right>" . tab-bar-history-forward))
+#+end_src
+* ディレクトリ Directory
+** Dired
+#+begin_src emacs-lisp :noweb-ref directory
+(use-package dired
+  :ensure nil
+  :config
+  (setq dired-listing-switches "-lA --group-directories-first"))
+#+end_src
+| ディレクトリを開く                 | C-x d                            | find fileでディレクトリを指定しても起動する |
+| Close Window                       | q                                |                                             |
+| Open File                          | RET, n                           |                                             |
+| Next Line                          | n, SPC                           |                                             |
+| Previous Line                      | p                                |                                             |
+| Create Directory                   | +                                |                                             |
+| 上の階層へ                         | ^                                |                                             |
+| Buffer 更新                        | g                                |                                             |
+|------------------------------------+----------------------------------+---------------------------------------------|
+| mark                               | m                                |                                             |
+| 削除候補としてmark                 | d                                |                                             |
+| markしたファイルの削除             | x                                |                                             |
+| 正規表現でmark                     | *%                               |                                             |
+| 1行上のmarkを外す                  | <BackSpace>                      |                                             |
+| 現在行のmarkを外す                 | u                                |                                             |
+| マークを全て外す                   | *!                               |                                             |
+|------------------------------------+----------------------------------+---------------------------------------------|
+| 指定したファイルを削除             | D                                |                                             |
+| 指定したファイルをコピー           | C                                |                                             |
+| 指定したファイル名を変更           | R                                |                                             |
+| ディレクトリやファイル名の一括編集 | M-x wdired-change-to-wdired-mode |                                             |
+| 一括編集の適用                     | C-c C-c                          |                                             |
+| 一括編集の内容を破棄               | C-c ESC                          |                                             |
+** Dirvish
+#+begin_src emacs-lisp :noweb-ref directory
+(use-package dirvish
+  :init
+  (dirvish-override-dired-mode)
+  :custom
+  (dirvish-attributes
+   '(nerd-icons file-time file-size collapse subtree-state vc-state git-msg))
+  (dirvish-mode-line-format
+   '(:left (sort symlink) :right (omit yank index)))
+  :config
+  (setq dirvish-default-layout '((0 0.4 0.6) (0 0.6 0.4)))
+  :bind
+  (:map dired-mode-map
+        ("TAB" . dirvish-subtree-toggle)
+        ("f"   . dirvish-file-info-menu)
+        ("y"   . dirvish-yank-menu)
+        ("N"   . dirvish-narrow)
+        ("h"   . dired-up-directory)
+        ("l"   . dired-find-file)
+        ("C-t" . other-window)))
+#+END_SRC
+** Nerd Icons
+#+begin_src emacs-lisp :noweb-ref directory
+(use-package nerd-icons
+  :custom
+  (nerd-icons-font-family "Symbols Nerd Font Mono"))
+#+end_src
+
+* ブックマーク Bookmark
+
+#+begin_src emacs-lisp :noweb-ref bookmark
+(use-package bookmark
+  :ensure nil
+  :custom
+  (bookmark-save-flag 1))
+#+end_src
+
+| bookmark-set   | C-x r m |                  |
+| bookmark-jamp* | C-x r b | consult-bookmark |
+
+* パッケージシステム Package System
+
+1. ~(package-initialize)~ で初期化. =early-init.org= の ~(setq package-enable-at-startup nil)~ とセットで用いる
+2. ~(require 'use-package)~ で =use-package= を読み込む(各パッケージではなくuse-packageそのもの)
+3. ~(setq use-package-always-ensure t)~ で =use-package= のデフォルト動作を設定
+   t: すべての =use-package= 宣言で =:ensure t= を指定するのと同じ動作となる.つまり自動で読み取る. =package-refresh-contents= (パッケージリストの更新)は手動で実行する必要あり
+
+#+begin_src emacs-lisp :noweb-ref package-system
+(package-initialize)
+(require 'use-package)
+(setq use-package-always-ensure t)
+#+end_src
+
+** Commands
+| パッケージリストを最新の状態に更新する       | M-x package-refresh-contents           | パッケージのインストール前に実行 |
+| パッケージのインストール                     | M-x package-install RET <Package Name> |                                  |
+| 再起動せずインストールした拡張機能を読み込む | M-x package-initialize                 |                                  |
+
+** パッケージの削除
+=M-x list-packages= > =d= > =x=
+リストに =dependency= と記載されたものは依存パッケージ. =M-x package-autoremove= で削除
+
+** キャッシュと履歴の削除
+パッケージの導入によりEmacs本体の動作が不安定になったときは,キャッシュ･履歴も削除してみるとよい
+- パッケージ実体: =~/.emacs.d/elpa/=
+- パッケージのキャッシュ: =~/.emacs.d/elpa/archives= 以下のファイル
+- M-xで入力したコマンドや検索文字列の履歴: =~/.emacs.d/history=
+
+* 変数 Global Variable
+
+** フォント
+PlemolJP(IBM Plex MonoとIBM Plex Sans JPの合字)は日本語が間延びしOrg Modeなど文章中心の実用には耐えない.そこでIBM Plex MonoをデフォルトFaceに設定の上,日本語(全角)にはNoto Sans Mono CJK JPを割り当てた
+TableのみPlemolJPを指定している.半角英数の表示はPlemolJP(プレーンなIBM Plex Monoと同じ)が有効となる.日本語(全角)の表示はNoto Sans Mono CJK JPで上書きされる.文字ピッチはPlemolJPの設定が生きるためTableの表示崩れが抑制される
+
+Org ModeのLevel(見出し)等に使用するプロポーショナルフォントとしてNoto Sans CJK JPを採用している
+
+#+begin_src emacs-lisp :noweb-ref variable
+(defvar sheep/fonts
+  `((default  . "IBM Plex Mono")
+    (japanese . "Noto Sans Mono CJK JP")
+    (write-h  . "Noto Sans CJK JP")
+    (table    . "PlemolJP"))
+  "Font Familyの定義")
+
+(defun sheep/font (name)
+  (alist-get name sheep/fonts))
+#+end_src
+
+** カラー
+#+begin_src emacs-lisp :noweb-ref variable
+(defvar solarized-colors
+  '((base03  . "#002b36")
+    (base02  . "#073642")
+    (base01  . "#586e75")
+    (base00  . "#657b83")
+    (base0   . "#839496")
+    (base1   . "#93a1a1")
+    (base2   . "#eee8d5")
+    (base3   . "#fdf6e3")
+    (yellow  . "#b58900")
+    (orange  . "#cb4b16")
+    (red     . "#dc322f")
+    (magenta . "#d33682")
+    (violet  . "#6c71c4")
+    (blue    . "#268bd2")
+    (cyan    . "#2aa198")
+    (green   . "#859900"))
+  "Solarizedカラーパレットの定義")
+
+(defun solarized (name)
+  (alist-get name solarized-colors))
+
+(defvar sheep/colors
+  `((fg         . ,(solarized 'base01))
+    (bg         . ,(solarized 'base3))
+    (bg-alt     . ,(solarized 'base2))
+    (link       . ,(solarized 'blue))
+    (h1         . ,(solarized 'orange))
+    (h2         . ,(solarized 'cyan))
+    (h3         . ,(solarized 'yellow))
+    (h4         . ,(solarized 'violet))
+    (h5         . ,(solarized 'green))
+    (strong     . ,(solarized 'base01))
+    (emphasis   . ,(solarized 'orange))
+    (annotation . ,(solarized 'violet))
+    (caption    . ,(solarized 'green))
+    (line       . ,(solarized 'base2))
+    (cursor-en  . ,(solarized 'base01))
+    (cursor-jp  . ,(solarized 'magenta))
+    (cursor-ka  . ,(solarized 'cyan))
+    (fg-henkan  . ,(solarized 'base3))
+    (bg-henkan  . ,(solarized 'violet)))
+  "UI要素ごとのカラーの定義")
+
+(defun sheep/color (name)
+  (alist-get name sheep/colors))
+#+end_src
+
+* 外観 Global Appearance
+
+** テーマ Solarized Theme
+#+begin_src emacs-lisp :noweb-ref theme
+(use-package solarized-theme
+  :config
+  (load-theme 'solarized-light t))
+#+end_src
+
+*** Colorset
+| base03 | #002b36 | base02 | #073642 | base01 | #586e75 | base00  | #657b83 |
+| base0  | #839496 | base1  | #93a1a1 | base2  | #eee8d5 | base3   | #fdf6e3 |
+| yellow | #b58900 | orange | #cb4b16 | red    | #dc322f | magenta | #d33682 |
+| violet | #6c71c4 | blue   | #268bd2 | cyan   | #2aa198 | green   | #859900 |
+[[file:/home/sheepink/.emacs.d/.github/assets/solarized-palette.png]]
+
+** フェイス Face
+=デフォルトFace= は *すべてのバッファの基準* として機能し,フォント,テキスト色,バッファ背景色などが設定できる
+_!!_ height(フォントサイズ)を3桁の数字で設定する場合,100=10pt.1ごとにサイズが変わるわけではない
+
+デフォルトFaceと別に日本語用のフォントを設定している
+
+Solarized ThemeではOrg ModeのLevel(見出し)がプロポーショナルフォントになる.日本語用のプロポーショナルフォントを明示的に指定しないと日本語がギザつく
+
+Italicは赤字(Caution),Underlineは緑小文字(Caption)と,用途変更&Face調整している
+
+_!!_ 以下のuse-packageは,行番号の表示など,Faceは絡まないが見た目に関わる設定も含む
+
+#+begin_src emacs-lisp :noweb-ref global-face
+(use-package emacs
+  :ensure nil
+  :hook
+  ;; 行番号を表示
+  (prog-mode . display-line-numbers-mode) ; プログラミング全般
+  (conf-mode . display-line-numbers-mode) ; 設定ファイル全般
+
+  :config
+  ;; デフォルトFace
+  (set-face-attribute 'default nil
+                      :family (sheep/font 'default)  ; Font
+                      :height 100                    ; Font Size
+                      :weight 'normal                ; Font Weight
+                      :foreground (sheep/color 'fg)  ; Font 前景色
+                      :background (sheep/color 'bg)) ; Buffer 背景色
+
+  (dolist (script '(kana han symbol cjk-misc bopomofo))
+    (set-fontset-font t script (font-spec :family (sheep/font 'japanese))))
+
+  ;; プロポーショナルフォント
+  (set-face-attribute 'variable-pitch nil
+                      :family (sheep/font 'write-h)
+                      :height 1.0
+                      :weight 'normal)
+
+  ;; Bold,Italic,Underline
+  (set-face-attribute 'bold nil
+                      :foreground (sheep/color 'strong)
+                      :weight 'bold)
+  (set-face-attribute 'italic nil
+                      :foreground (sheep/color 'caption)
+                      :height 0.9
+                      :underline nil)
+  (set-face-attribute 'underline nil
+                      :foreground (sheep/color 'emphasis)
+                      :underline nil)
+
+  ;; Mode Line
+  (set-face-attribute 'mode-line nil :underline nil)
+  (set-face-attribute 'mode-line-inactive nil :underline nil)
+
+  ;; Fringe
+  (fringe-mode 12)                                ; 幅
+  (set-face-background 'fringe (sheep/color 'bg)) ; 背景色
+
+  ;; Window間の境界線
+  (set-face-attribute 'vertical-border nil
+                      :foreground (sheep/color 'line)))
+#+end_src
+
+* Web Develop
+
+* Org Mode
+
+** Org Modeの基本
+スムーズにSpeed Commandが使えるように,Org見出しの行頭に移動したとき自動で半角英数(skk-latin-mode)に切り替わる処理を入れている.
+
+#+begin_src emacs-lisp :noweb-ref org-mode
+(use-package org
+  :ensure nil
+  :custom
+  (org-use-speed-commands t)           ; スピードコマンドを有効化
+
+  (org-startup-indented t)             ; 開いたときに自動インデント
+  (org-indent-indentation-per-level 4) ; インデント幅
+  (org-src-preserve-indentation t)     ; ソースブロックのインデントを保持
+
+  (org-hide-emphasis-markers t)        ; マークアップ記号を隠す
+  (word-wrap-by-category t)            ; 和欧混合文の折返しを改善
+
+  (org-startup-with-inline-images t)   ; ファイルを開いたときに画像を表示
+  (org-image-actual-width nil)         ; 画像サイズの自動調整を無効化
+  (org-image-max-width 600)            ; 画像の最大幅
+
+  :config
+  (require 'org-tempo) ; <s TAB 等でのソースブロック挿入を有効化
+
+  (defun sheep/org-insert-heading-eol ()
+    "行末で見出しを追加"
+    (interactive)
+    (end-of-line)
+    (org-insert-heading))
+
+  (defun sheep/org-insert-item-eol ()
+    "行末でリストアイテムを追加"
+    (interactive)
+    (end-of-line)
+    (org-meta-return))
+
+  (defun sheep/org-kill-element ()
+    "要素全体を削除"
+    (interactive)
+    (let ((beg (point)))
+      (org-mark-element)
+      (kill-region (region-beginning) (region-end))))
+
+  (defun sheep/org-backward-kill-element ()
+    "前の要素全体を削除"
+    (interactive)
+    (let ((end (point)))
+      (org-backward-element)
+      (kill-region (point) end)))
+
+  (defun sheep/skk-latin-at-org-heading (&rest _args)
+    "Org見出し行では半角英数(skk-latin-mode)に切り替え"
+    (when (and (derived-mode-p 'org-mode)
+               (org-at-heading-p))
+      (skk-latin-mode 1)))
+
+  ;; 複数のコマンドに,実行後(after),Org見出し行なら半角英数に切り替える処理を追加
+  (dolist (func '(crux-move-beginning-of-line
+                  org-forward-element
+                  org-backward-element))
+    (advice-add func :after #'sheep/skk-latin-at-org-heading))
+
+  ;; 親となるOrg見出し行に移動したとき半角英数(skk-latin-mode)に切り替え
+  (advice-add 'org-previous-visible-heading :after
+              (lambda (&rest _args)
+		(skk-latin-mode 1)))
+
+  :bind
+  (:map org-mode-map
+        ("C-S-<return>" . sheep/org-insert-heading-eol)
+        ("M-<return>"   . sheep/org-insert-item-eol)
+        ("M-S-<return>" . org-meta-return)
+        ("C-M-y"        . org-metaup)
+        ("C-M-u"        . org-metadown)
+        ("C-M-h"        . org-metaleft)
+        ("C-M-j"        . org-metaright)
+        ("C-M-n"        . org-shiftleft)
+        ("C-M-m"        . org-shiftright)
+        ("M-Y"          . org-shiftmetaup)
+        ("M-U"          . org-shiftmetadown)
+        ("M-H"          . org-shiftmetaleft)
+        ("M-J"          . org-shiftmetaright)
+        ("C-h"          . org-mark-element)
+        ("M-n"          . org-forward-element)
+        ("M-m"          . sheep/org-kill-element)
+        ("M-p"          . org-backward-element)
+        ("M-@"          . sheep/org-backward-kill-element)
+        ("M-h"          . mark-word)
+	("C-c s t"      . org-babel-tangle)))
+#+end_src
+
+*** Speed Command
+以下のキーバインド表の行頭の =[]= の記号がスピードコマンドである. ~(org-use-speed-commands t)~ で有効化.Level行頭で機能する
+
+*** Level間のカーソル移動
+| [n]Next Headline                  | C-c C-n     |                                |
+| [p]Previous Headline              | C-c C-p     |                                |
+| [f]Next Headline(current)         | C-c C-f     |                                |
+| [b]Previous Headline(current)     | C-c C-b     |                                |
+| [u]Parent Headline                | C-c C-u     |                                |
+
+*** Outline
+| [U]Outline Move Up*               | C-M-y       | Default:M-UP             |
+| [D]Outline Move Down*             | C-M-u       | Default:M-DOWN           |
+| 親子関係を無視して上下移動*       | M-Y/M-U     | Default:M-S-UP/M-S-DOWN  |
+| [l]Outliene Level Up*             | C-M-h       | Default:M-LEFT           |
+| [r]Outline Level Down*            | C-M-j       | Default:M-RIGHT          |
+| [L]Outline Level Up(Treeごと)*    | M-H         | Default:M-S-LEFT         |
+| [R]Outline Level Downn(Treeごと)* | M-J         | Default:M-S-RIGHT        |
+|-----------------------------------+-------------+--------------------------|
+| [i]Insert Heading                 | C-RET       | 行の途中からでも実行可能 |
+| Insert Heading(次の行)*           | C-S-RET     | 〃                       |
+| New List Item*                    | M-RET       | 〃                       |
+| New List Item*                    | M-S-RET     | Default:M-RET            |
+|-----------------------------------+-------------+--------------------------|
+| [c]Subtree Cycling                | TAB         |                          |
+| [C]Global Cycling                 | S-TAB       |                          |
+|-----------------------------------+-------------+--------------------------|
+| Org Forward Sentence              | M-e         |                          |
+| Org Backward Sentence             | M-a         |                          |
+| Org Mark Element*                 | C-h         |                          |
+| Org Forward Element*              | M-n         |                          |
+| Org Kill Element*                 | M-m         |                          |
+| Org Backward Element*             | M-p         |                          |
+| Org Backward Kill Element*        | M-@         |                          |
+|-----------------------------------+-------------+--------------------------|
+| [t]Task状態変更*                  | C-M-n/C-M-m | Default:S-LEFT/S-RIGHT   |
+| リストのマーカー変更*             | C-M-n/C-M-m | Default:S-LEFT/S-RIGHT   |
+| エレメント･リスト切り替え         | C-c -       |                          |
+|-----------------------------------+-------------+--------------------------|
+| リンク構文の確認・修正            | C-c C-l     | 画像で使用できる         |
+
+*** Table
+| New Line    | M-S-u, C-o | 上に挿入される |
+| Delete Line | M-S-y, M-k |                |
+
+*** コードブロックとOrg Babel
+| コードブロックの編集(専用Bufferが開く)   | C-c '   |
+| コードブロックを別ファイルに抽出(tangle) | C-c s t |
+
+**** Tangle
+別ファイルに抽出したいコードブロックのHeaderに記述する
+
+- ~:tangle "filename"~: 指定したファイル名に出力
+- ~:tangle "path/to/file"~: 相対パスまたは絶対パスで指定可能
+
+**** Noweb
+コードブロック間の階層関係を作る.親コードブロックのHeaderには ~:noweb yes~ を記述し,Body内で子コードブロックの配置を指定する
+#+begin_src emacs-lisp :noweb yes
+<<child-block-1>>
+
+<<child-block-2>
+#+end_src
+
+子ブロックのHeaderには ~:noweb-ref child-block-1~ のように記述する.同名の子ブロックは上から順に親に統合され抽出される
+再帰的に何階層にもできるが,実用上は2階層,せいぜい3階層が限度だろう
+
+**** エスケープ
+コードブロック内の行頭の =*= や =#+= はエスケープが必要.自動で前に =,= が付く.エスケープ記号は抽出時に自動除去される
+
+*** Org Tempo
+| Code Block    | ~<s + TAB~ |
+| Quote Block   | ~<q + TAB~ |
+| Example Block | ~<e + TAB~ |
+
+*** Terms
+- Tree: 全体のアウトライン(木構造)
+- Subtree: 特定のHeadline下の木構造
+- Headline: 階層的な見出し
+- element: Headline以外の要素
+
+** Org Appear
+#+begin_src emacs-lisp :noweb-ref org-mode
+(use-package org-appear
+  :hook
+  (org-mode . org-appear-mode)
+  :config
+  (setq org-appear-autoentities t)
+  (setq org-appear-autolinks t))
+#+end_src
+
+** Org ModeのFace
+#+begin_src emacs-lisp :noweb-ref org-face
+(use-package org
+  :ensure nil
+  :custom
+  (org-fontify-todo-headline t) ; TODOのFaceをキーワード部分のみでなく行全体に適用
+  :config
+  (let ((colors (list (sheep/color 'h1)
+                      (sheep/color 'h2)
+                      (sheep/color 'h3)
+                      (sheep/color 'h4)
+                      (sheep/color 'h5)
+                      (sheep/color 'fg)
+                      (sheep/color 'fg)
+                      (sheep/color 'fg))))
+    (dotimes (i 8)
+      (set-face-attribute
+       (intern (format "org-level-%d" (1+ i))) nil
+       :foreground (nth i colors)
+       :height 1.0
+       :weight 'normal)))
+
+  (set-face-attribute 'org-link nil
+                      :foreground (sheep/color 'link)
+                      :weight 'normal
+                      :underline t)
+  (set-face-attribute 'org-verbatim nil
+                      :foreground (sheep/color 'annotation))
+  (set-face-attribute 'org-table nil
+                      :family (sheep/font 'table)
+                      :height 0.97)
+
+  ;; Code Block Faces
+  (set-face-attribute 'org-block nil
+                      :background (sheep/color 'bg-alt)
+                      :height 0.97)
+  (set-face-attribute 'org-block-begin-line nil
+                      :background (sheep/color 'bg)
+                      :height 0.8
+                      :underline nil)
+  (set-face-attribute 'org-block-end-line nil
+                      :background (sheep/color 'bg)
+                      :height 0.8
+                      :overline nil)
+  (set-face-attribute 'org-code nil
+                      :foreground (sheep/color 'fg)
+                      :background (sheep/color 'bg-alt))
+
+  ;; Tasklist Faces
+  (setq org-todo-keyword-faces
+        `(("TODO" . (:foreground ,(sheep/color 'emphasis) :weight normal))
+          ("DONE" . (:foreground ,(sheep/color 'link) :weight normal))))
+  (set-face-attribute 'org-headline-todo nil
+                      :foreground (sheep/color 'annotation))
+  (set-face-attribute 'org-headline-done nil
+                      :foreground (sheep/color 'fg)))
+#+end_src
+
+* Markdown Mode
+
+#+begin_src emacs-lisp :noweb-ref markdown-mode
+(use-package markdown-mode
+  :mode
+  ("\\.md\\'" . markdown-mode)
+  :defer t)
+#+end_src
+
+* Emacs Lisp Mode
+
+#+begin_src emacs-lisp :noweb-ref emacs-lisp-mode
+(add-hook 'emacs-lisp-mode-hook
+          (lambda ()
+            (outline-minor-mode 1)
+            (setq-local outline-regexp "^;;;")))
+#+end_src
+
+| 設定の反映                     | C-x C-e                  | 評価したいS式の後ろにPointを置く         |
+| カレントバッファを全て評価     | M-x eval-buffer          |                                          |
+| S式の評価                      | M-x eval-print-last-sexp | 四則演算のような単純な式の評価にも使える |
+
+* サブシステム Sub Sytems
+
+** Magit
+#+begin_src emacs-lisp :noweb-ref magit
+(use-package magit
+  :custom
+  (magit-display-buffer-function #'magit-display-buffer-same-window-except-diff-v1)
+  (magit-bury-buffer-function 'magit-mode-quit-window)
+  (magit-log-section-commit-count 50)
+  :config
+  (advice-add 'magit-commit-diff :override #'ignore)
+  :bind ("C-x g" . magit-status))
+#+end_src
+
+| git init                   | C-x g     | Diredでディレクトリに移動しておく |
+| Magit Burrer Open          | C-x g     |                                   |
+| git add                    | s         | ファイル or Untracked files       |
+| Unstage                    | u         | ステージングの取り消し            |
+| git commit                 | c c       |                                   |
+| Buffer 更新                | g         |                                   |
+| 管理画面を抜ける           | q         |                                   |
+| コミットの実行             | C-c C-c   |                                   |
+| コミットのキャンセル       | C-c C-k   |                                   |
+| git push                   | P         |                                   |
+| ファイルを追跡対象から除外 | K(大文字) | git rm --chashed <file名〉と同じ  |
+
+*** Mode Line
+=Git:main= のように表示される
+
+| :  | Modified          |
+| -  | No changes        |
+| @  | Staged            |
+| ?  | Unknown/Untracked |
+| ！ | Error             |
+
+** Vterm
+#+begin_src emacs-lisp :noweb-ref vterm
+(use-package vterm
+  :commands vterm
+  :config
+  (setq vterm-max-scrollback 10000)
+  :bind
+  (("C-x v"   . vterm)
+   ("C-c 3 v" . vterm-other-window)
+   :map vterm-mode-map
+   ("C-a"   . vterm-beginning-of-line)
+   ("C-e"   . vterm-end-of-line)
+   ("C-M-p" . vterm-previous-prompt)
+   ("C-M-n" . vterm-next-prompt)
+   ("C-y"   . vterm-yank)
+   ("M-y"   . vterm-yank-pop)
+   ("C-t"   . other-window)
+   ("C-z"   . vterm-undo)
+   ("C-w"   . vterm-copy-mode)))
+#+end_src
+
+| Vtermの起動*                   | C-x v   |                                                             |
+| Vtermを新しいウィンドウで起動* | C-c 3 v |                                                             |
+| 次のプロンプト*                | C-M-n   |                                                             |
+| 前のプロンプト*                | C-M-p   |                                                             |
+| コピーモード*                  | C-c w w | テキスト選択肢,RETでコピーが実行され,コピーモードから抜ける |
+| Clear                          | C-l     |                                                             |
+| Log Out                        | C-d     | 入力時には文字削除となる                                    |
+*** Install
+1.Vtermを動かすために必要なCMakeやライブラリをインストール
+   ~sudo apt install cmake libtool-bin libvterm-dev~
+2. init.el に =use package vterm...= で設定を記述し再起動> =M-x vterm=
+
+** Gptel
+#+begin_src emacs-lisp :noweb-ref gptel
+(use-package gptel
+  :config
+  (setq gptel-model 'gemini-2.5-flash)
+  (setq gptel-system-message "あなたは,私(質問者)のことを「羊さん」と呼んで下さい.
+    公式のドキュメントや信頼性の高いソースから最新の情報を収集して下さい
+    私(質問者)がUbuntu 24.04 LTS(GNOME,Wayland)ユーザーであることを考慮して下さい")
+  (setq gptel-directives
+        '((default . "You are a large language model living in Emacs and a helpful assistant. Respond concisely.")
+          (emacs . "あなたはGNU Emacsをメインエディタとして使用するシニアエンジニアであり,Web開発のエキスパートです.
+            SpacemacsやDoom Emacsは使用せず,プレーンなEmacsに厳選したパッケージを組み合わせることを好みます.
+            最新のEmacs 30.2環境を生かして,Apheleia,gptel,Vertico,Consult,Corfuなど,モダンなパッケージを積極的に導入しています.ただしレガシーであっても,Magitや Diredなど,今なお強力なパッケージは使い続けています.
+            あなたは,新人エンジニアの羊さんを教育します.最新技術に加え,シェルスクリプト・正規表現・Makefileといった基本技術も適宜教えます")
+          (linux . "あなたはLinuxとUbuntuのエキスパートであり,CLIにもGUI(GNOME)にも精通したシニアエンジニアであり,新人Webエンジニアである羊さんのメンターです")))
+  (setq gptel-track-media t)
+  (setq gptel-include-reasoning nil)
+
+  ;; Backends
+  (gptel-make-gemini "Gemini-Pro"
+    :key (lambda () (getenv "GEMINI_API_KEY_PRO"))
+    :stream t
+    :models '(gemini-2.5-flash
+              gemini-2.5-pro
+              gemini-3-pro-preview))
+
+  (setq gptel-backend
+        (gptel-make-gemini "Gemini-Free"
+          :key (lambda () (getenv "GEMINI_API_KEY_FREE"))
+          :stream t
+          :models '(gemini-2.5-flash
+                    gemini-2.5-pro)))
+
+  ;; Custom Functions
+  (defun sheep/create-gptel-buffer ()
+    "Gptel用の使い捨てバッファを作成"
+    (interactive)
+    (let* ((base-name "*Gptel*")
+           (buffer-name (generate-new-buffer-name base-name))
+           (buf (get-buffer-create buffer-name)))
+      (with-current-buffer buf
+        (erase-buffer)
+        (markdown-mode)
+        (gptel-mode)
+        (set-buffer-modified-p nil)
+        (insert "### "))
+      (switch-to-buffer buf)
+      (message "Temporary buffer '%s' created." buffer-name)))
+
+  (defun sheep/gptel-send-with-separator ()
+    "区切り線を入れて送信"
+    (interactive)
+    (insert "\n\n---")
+    (call-interactively 'gptel-send))
+
+  (defun sheep/erase-buffer-insert-heading ()
+    "バッファをクリアして見出しを挿入"
+    (interactive)
+    (erase-buffer)
+    (insert "### "))
+
+  :bind
+  ("C-c a a" . sheep/create-gptel-buffer)
+  ("C-c 3 a" . gptel)
+  ("C-c a d" . gptel-add)
+  ("C-c a f" . gptel-add-file)
+  ("C-c a p" . gptel-system-prompt)
+  ("C-c a n" . gptel-end-of-response)
+  ("C-c a k" . gptel-context-remove-all)
+  ("C-c a e" . sheep/erase-buffer-insert-heading)
+  ("C-c a m" . gptel-menu)
+  ("C-c a g" . gptel-mode)
+  ("C-c <return>"   . sheep/gptel-send-with-separator)
+  ("C-c a <return>" . gptel-send))
+  #+end_src
+
+| 質問の送信(区切り線有)*         | C-c RET   | 自作関数                 |
+| 質問の送信*                     | C-c a RET | gptel-send               |
+| 質問用Bufferの作成*             | C-c a a   | 自作関数                 |
+| 質問用Bufferの作成(New Window)* | C-c 3 a   | gptel                    |
+| Add Contexts(Buffer)*           | C-c a d   | gptel-add                |
+| Add Contexts(File)*             | C-c a f   | gptel-add-file           |
+| Promptの選択*                   | C-c a p   | gptel-system-proCmpt     |
+| 次の質問*                       | C-c a n   | gptel-end-of-response    |
+| Context Clear*                  | C-c a k   | gptel-context-remove-all |
+| Erace Buffer > Insert Heading*  | C-c k a   | 自作関数                 |
+| gptel Menu*                     | C-c a m   | gptel-menu               |
+| gptel Mode*                     | C-c a g   | gptel-mode               |
+*** Settings
+環境変数は =/~.profile= に設定する.変更した際は再起動が必要
+
+* エラー対応·レファレンス
+
+| 操作のキャンセル・コマンド中断 | C-g                      |                                          |
+| 再帰編集レベルから抜け出す     | M-x ESC ESC ESC          | メジャーモードの()が[]で囲われた状態     |
+| データ回復                     | M-x recover file         | RET>filepath>RET>yes                     |
+
+| カーソル位置のfaceを調べる         | M-x describe-face       |
+| カーソル位置のキーバインドを調べる | M-x describe-key        |
+| List Colors                        | M-x list-colors-display |
