@@ -1,39 +1,17 @@
-* EmacsでつくるLife Work (日本語 + Org Mode + Hugo)
-バイカル湖より深そうなEmacsの世界に入ったばかりの,Sheep Ink (羊インク) 個人の設定ファイルです
+* ノート·ライフログ·文芸的Web制作のための極私的Emacs設定
 
-プレーンなEmacsをベースに,Org ModeとWeb開発 (Hugo) のためのカスタマイズを施しています
-** Environment
-- *OS* : Ubuntu 24.04 LTE
-- *Emacs* : GNU Emacs 30.2 (PGTK build)
-- *Input Method* : Fcitx5 (mozc)
-*** Theme
-テーマは *solarized-theme* を使用しています.solarized-lightをベースにしてFaces等の調整を加えています
-*** Font Family
-- *IBM Plex Mono* : Default (半角英数)
-- *Noto Sans Mono CJK JP* : Default (全角日本語)
-- *Noto Sans CJK JP* : Org Modeの見出し
-- *PlemolJP*: Org ModeのTable (表) 整形用
-[[https://github.com/yuru7/PlemolJP][PlemolJP]]は,IBM Plex Mono (半角英数) とIBM Plex Sans JP (全角日本語など) を合成したプログラミングフォントです
+入力システムに SSK (DDSKK) を採用しています
 
-当初はPlemolJPをデフォルトのフォントにする予定でしたが,ノートや執筆といった用途のときは日本語の部分の間延びが気になるため,[[https://fonts.google.com/specimen/IBM+Plex+Mono][IBM Plex Mono]]と[[https://github.com/notofonts/noto-cjk][Noto Sans Mono CJK JP]]を組み合わることにしました
+Org Mode ベースで文芸的プログラミング (静的サイトジェネレーター Hugo でのテーマ作成等) を行なうためのチューニングをしています
 
-ただし,Org ModeのTable (表) の縦線 ~|~ を日本語環境でもピシッと揃えるために,org-tableのみPlemolJPを指定しています.日本語が混在するorg-tableの整形は難しく,faceに微妙な調整を加えていますが,私以外の環境での再現性は不明です 
-** Org Mode
-org-modern などリッチなデザイン処理は施さず,インデント付きテキストのプレーンな良さをできるだけ活かす方針です
-- *見出し* : 自動インデントの機能を有効化し,見出し (Level) は5段階まで色分けしています.文字サイズは本文と同じです
-- *テキスト装飾* : Italic (斜体) を｢緑の小文字｣に,Underline (下線) を｢赤字｣に転用しています
+Emacs の設定も Org Mode で書き, ~earyly-init.el~ や ~init.el~ として抽出しています
+
+和欧混合でも Org Mode のテーブルレイアウトが崩れぬよう調整していますが, 環境ごとに微調整が必要と思われます
+
 [[file:.github/assets/org-mode-preview-01.png]]
-** Web Develop
-Hugoを用いたWeb開発環境は準備中です.おそらくox-hugoパッケージを使用することになりそう
-** Packages
-採用している主なパッケージは以下のとおりです
-- *sis* : 快適な日本語入力環境
-- *crux* : 基本操作･編集の細やかな改善
-- *undo-fu* + *undo-fu-session* + *vundo* : 作業履歴の管理
-- *veltico* + *orderless* + *consult* + *embark* + *embark-consult* + *marginalia* : ミニバッファでの作業が快適に
-- *corfu* : 入力補完
-- *magit* : バージョン管理(Gitなど)
-- *vterm* : ターミナル
-- *gptel* : 生成AI連携
-** License
-MIT License
+
+** Environment
+
+- *OS* : Ubuntu 24.04 LTS
+- *Emacs* : GNU Emacs 30.2 (PGTK build)
+- *Input Method* : DDSKK
