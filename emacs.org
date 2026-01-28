@@ -108,6 +108,7 @@ _!!_ HeaderおよびFooterは省略しても動作上の問題はない
 Emacsの設定に必要なファイルは =~/.emacs.d/= に格納するのがデフォルトである
 
 **** ディレクトリ
+- auto-save-list: 自動保存の記録管理
 - eln-cache: ネイティブコンパイルされた.elnファイルのキャッシュ
 - elpa: パッケージの保管場所
 - image-dired: image-dired-mode使用時のサムネイル画像のキャッシュ
@@ -121,7 +122,7 @@ Emacsの設定に必要なファイルは =~/.emacs.d/= に格納するのがデ
 - kkcrc: DDSKKの設定
 - places: save-place-modeによるカーソル位置のデータ
 - projects: プロジェクトの定義
-- tramp: TRAMPのキャッシュ·接続履歴
+- tramp: TRAMP(リモートサーバー上のファイルを編集できる機能)のキャッシュ·接続履歴
 - .emacs.desktop, .emacs.desktop.lock: desktop-save-modeのセッション保存データ
 
 **** .gitignore
