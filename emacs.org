@@ -290,13 +290,24 @@ _!!_ 新しい設定項目を追加するときは =use-package= のどこに記
 #+end_src
 
 *** 個人辞書
-個人辞書 =~/.skk-jisyo= はユーザーの変換履歴を記録する. ~M-x skk-sisyo-edit~ で編集できるが,基本的に放置でよい.
+個人辞書 ~~/.skk-jisyo~ はユーザーの変換履歴を記録する. M-x ~skk-sisyo-edit~ で編集できるが,基本的に放置でよい
 変換を確定すると誤変換であっても個人辞書に自動登録される.C-gで確定前にキャンセルするのが望ましいが,実は誤変換が登録されても実害は少ない.正しい変換を繰り返し使えばそれが個人辞書の上位に来て,すなわち変換候補の上位に来る.辞書に登録された誤変換は気が向いたときに気づいたら消す程度で十分なようである
 
 ** テキスト編集
+キーバインド =C-j= のみ :init で key-translation-map を使用して設定しているのは,パッケージやモードによって設定が上書きされるのを防ぐためである.ただし多くの場合 ~:bind~ に記述しても問題はない
+
+Sentenceの終端は, ~sentence-ende-base~ および ~sentence-end-without-space~ (日本語対応)で定義されている
+
 #+begin_src emacs-lisp :noweb-ref text-editing
 (use-package emacs
   :ensure nil
+  :init
+  (define-key key-translation-map (kbd "C-j") (kbd "<DEL>")) ; DEL=BackSpace
+
+  :custom
+  ;; Sentenceの終端(区切り)を指定.M-a,M-e等の基準となる
+  (sentence-end-double-space nil) ; 半角スペース1字で区切りを検知
+
   :config
   (defun sheep/copy-line ()
     "現在行をコピーする"
@@ -325,9 +336,7 @@ _!!_ 新しい設定項目を追加するときは =use-package= のどこに記
    ("M-p"     . backward-sexp)
    ("M-@"     . backward-kill-sexp)
    ("M-h"     . mark-word)
-   ("M-j"     . backward-kill-word))
-  :init
-  (define-key key-translation-map (kbd "C-j") (kbd "<DEL>")))
+   ("M-j"     . backward-kill-word)))
 #+end_src
 
 *** 選択·Kill·コピー
