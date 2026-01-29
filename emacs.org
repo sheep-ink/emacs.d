@@ -256,7 +256,7 @@ _!!_ 新しい設定項目を追加するときは =use-package= のどこに記
   :custom
   (skk-large-jisyo "/usr/share/skk/SKK-JISYO.L") ; 基本辞書
   (skk-kutouten-type 'en)                        ; 句読点は英文スタイル
-  (skk-kuten-touten-alist '((en . ("." . ",")))) ; 半角の,.を句読点として定義
+  (skk-kuten-touten-alist '((en . (". " . ", ")))) ; 半角の ,. を句読点として定義
 
   ;; カーソル色
   (skk-cursor-latin-color (sheep/color 'cursor-en))    ; 英数
