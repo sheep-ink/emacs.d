@@ -476,12 +476,12 @@ _!!_ abbrev定義を書き替える場合, ~M-x edit-abbrevs~ で従前の定義
 *** 可視テキスト内移動 Avy
 [[https://github.com/abo-abo/avy][GitHub]]
 
-_!!_ Org Modeのような構造が複雑で(かつ長い)ファイルではタイムアウトエラーが生じやすいので =avy-temeout-seconds= の値を =1.0= 以上にしておく
+_!!_ Org Modeのような構造が複雑で(かつ長い)ファイルではタイムアウトエラーが生じやすいので =avy-temeout-seconds= の値を =1.0= 程度にしておく
 
 #+begin_src emacs-lisp :noweb-ref input-completion
 (use-package avy
   :config
-  (setopt avy-timeout-seconds 1.0)                ; 入力後の待機時間
+  (setopt avy-timeout-seconds 0.8)                ; 入力後の待機時間
   (setopt avy-keys '(?a ?s ?d ?f ?g ?h ?j ?k ?l)) ; ヒントに使用する文字(ホームポジション優先)
   (setopt avy-single-candidate-jump t)            ; 候補が1つだけの時は自動的にジャンプ
 
