@@ -4,35 +4,35 @@
 | 文字サイズの変更 | C-x C-+/C-x C--/C-x C-0 |
 
 ** カーソルの移動
-| 上の行へ      | C-p |                                      |
-| 下の行へ      | C-n |                                      |
-| 行頭へ移動*   | C-a | crux-move-begining-of-lineに差し替え |
-| 行末へ移動    | C-e |                                      |
-| 右に1文字移動 | C-f |                                      |
-| 左に1文字移動 | C-b |                                      |
-| 右に1単語移動 | M-f |                                      |
-| 左に1単語移動 | M-b |                                      |
+| 上の行へ        | C-p |                                       |
+| 下の行へ        | C-n |                                       |
+| 行頭へ移動 *    | C-a | crux-move-begining-of-line に差し替え |
+| 行末へ移動      | C-e |                                       |
+| 右に 1 文字移動 | C-f |                                       |
+| 左に 1 文字移動 | C-b |                                       |
+| 右に 1 単語移動 | M-f |                                       |
+| 左に 1 単語移動 | M-b |                                       |
 
 ** 行の操作
-| 改行                  | C-m, RET |                                       |
-| 空行を追加            | C-o      | open-line                             |
-| 空行を追加(行の途中)* | M-o      | crux-smart-open-line                  |
-| 行複製*               | C-c d    | crux-duplicate-current-line-on-region |
-| 行の入れ替え          | C-x C-t  |                                       |
+| 改行                    | C-m, RET |                                       |
+| 空行を追加              | C-o      | open-line                             |
+| 空行を追加 (行の途中) * | M-o      | crux-smart-open-line                  |
+| 行複製 *                | C-c d    | crux-duplicate-current-line-on-region |
+| 行の入れ替え            | C-x C-t  |                                       |
 
 ** 入力·削除
-| N回分Sを入力   | C-<N> S |
-| コメントを入力 | M-;     |
-| 1字削除        | C-d     |
-| 1字BS          | C-j     |
+| N 回分 S を入力 | C-<N> S |
+| コメントを入力  | M-;     |
+| 1 字削除        | C-d     |
+| 1 字 BS         | C-j     |
 
 * 設定ファイルの概要
 
 ** init.el
 *** 全体構造
-1. グローバル(パッケージシステム > 変数 > 外観 > 機能)
+1. グローバル (パッケージシステム > 変数 > 外観 > 機能)
 2. 各モード
-3. サブシステム(Emacs内アプリのように動作するパッケージ)
+3. サブシステム (Emacs 内アプリのように動作するパッケージ)
 
 #+begin_src emacs-lisp :tangle init.el :noweb yes
 <<file-header>>
@@ -79,15 +79,15 @@
 <<file-footer>>
 #+end_src
 
-*** 設定ファイルのHeader/Footer
+*** 設定ファイルの Header / Footer
 
 **** Header
 =early.init.el= のメタデータを定義する
-_!!_ HeaderおよびFooterは省略しても動作上の問題はない
+_!!_ Header および Footer は省略しても動作上の問題はない
 
-- ~Package --- ...~ : ファイルの概要を示す
-- ~lexical-binding: t~ : Emacs24.1以降で導入された静的スコープを有効化する
-- ~Code~ : プログラムの開始位置を示すマーカー
+- ~Package --- ...~: ファイルの概要を示す
+- ~lexical-binding: t~: Emacs 24.1 以降で導入された静的スコープを有効化する
+- ~Code~: プログラムの開始位置を示すマーカー
 
 #+begin_src emacs-lisp :noweb-ref file-header
 ;;; package --- 設定ファイル -*- lexical-binding: t; -*-
@@ -96,8 +96,8 @@ _!!_ HeaderおよびFooterは省略しても動作上の問題はない
 #+end_src
 
 **** Footer
-- ~(provide 'early-init)~ : このファイルが =early-init= という機能を提供することを宣言
-- ~early-init.el ends here~ : ファイルの終端を明示的に示す
+- ~(provide 'early-init)~: このファイルが =early-init= という機能を提供することを宣言
+- ~early-init.el ends here~: ファイルの終端を明示的に示す
 
 #+begin_src emacs-lisp :noweb-ref file-footer
 (provide 'init)
@@ -105,30 +105,30 @@ _!!_ HeaderおよびFooterは省略しても動作上の問題はない
 #+end_src
 
 *** 設定ファイルの格納場所 .emacs.d
-Emacsの設定に必要なファイルは =~/.emacs.d/= に格納するのがデフォルトである
+Emacs の設定に必要なファイルは =~/.emacs.d/= に格納するのがデフォルトである
 
 **** ディレクトリ
 - auto-save-list: 自動保存の記録管理
-- eln-cache: ネイティブコンパイルされた.elnファイルのキャッシュ
+- eln-cache: ネイティブコンパイルされた .eln ファイルのキャッシュ
 - elpa: パッケージの保管場所
-- image-dired: image-dired-mode使用時のサムネイル画像のキャッシュ
-- transient: Transientパッケージ(Magitなど)の履歴·設定の保存
-- undo-fu-session: Undo履歴のデータ
+- image-dired: image-dired-mode 使用時のサムネイル画像のキャッシュ
+- transient: Transient パッケージ (Magit など) の履歴·設定の保存
+- undo-fu-session: Undo 履歴のデータ
 
 **** ファイル
-- abbrev_defs: Abbrevで設定した略語定義
+- abbrev_defs: Abbrev で設定した略語定義
 - bookmarks: ブックマーク
-- history: Mini Bufferの入力履歴
-- kkcrc: DDSKKの設定
-- places: save-place-modeによるカーソル位置のデータ
+- history: Mini Buffer の入力履歴
+- kkcrc: DDSKK の設定
+- places: save-place-mode によるカーソル位置のデータ
 - projects: プロジェクトの定義
-- tramp: TRAMP(リモートサーバー上のファイルを編集できる機能)のキャッシュ·接続履歴
-- .emacs.desktop, .emacs.desktop.lock: desktop-save-modeのセッション保存データ
+- tramp: TRAMP (リモートサーバー上のファイルを編集できる機能) のキャッシュ·接続履歴
+- .emacs.desktop, .emacs.desktop.lock: desktop-save-mode のセッション保存データ
 
 **** .gitignore
 =*= で全てのファイルを除外し =!= で必要なファイルのみを追加する
 
-_!!_ Org Modeのコードブロックでは,行頭の =*= は自動てエスケープされ =,= が付く.抽出(tangle)の際には除去される
+_!!_ Org Mode のコードブロックでは, 行頭の =*= は自動てエスケープされ =,= が付く. 抽出 (tangle) の際には除去される
 
 #+begin_src text :tangle .gitignore
 ,*
@@ -143,7 +143,7 @@ _!!_ Org Modeのコードブロックでは,行頭の =*= は自動てエスケ�
 #+end_src
 
 ** eartly-init.el
-=init.el= より前に読み込まれる.GUIやパッケージシステムの初期化よりも先に実行されるため,以下のような設定に適する
+init.el より前に読み込まれる. GUI やパッケージシステムの初期化よりも先に実行されるため, 以下のような設定に適する
 
 - フレームの外観: 起動前に設定することで起動時のチラつきがなくなる
 - パッケージ初期化の制御
@@ -161,8 +161,8 @@ _!!_ Org Modeのコードブロックでは,行頭の =*= は自動てエスケ�
 #+end_src
 
 *** 各設定
-パッケージアーカイブ(melpa等)を設定. ~(setq package-enable-at-startup nil)~ で自動ロードを抑制
-パッケージの初期化と読み込みは =init.el= で行なう
+パッケージアーカイブ (melpa 等) を設定. ~(setq package-enable-at-startup nil)~ で自動ロードを抑制
+パッケージの初期化と読み込みは init.el で行なう
 
 #+begin_src emacs-lisp :noweb-ref early-init-body
 (require 'package)
@@ -170,31 +170,31 @@ _!!_ Org Modeのコードブロックでは,行頭の =*= は自動てエスケ�
 (setq package-enable-at-startup nil)
 #+end_src
 
-フレーム属性の設定(画面最大化,タイトルバー非表示,フレーム内側の余白設定)
+フレーム属性の設定 (画面最大化, タイトルバー非表示, フレーム内側の余白設定)
 #+begin_src emacs-lisp :noweb-ref early-init-body
 (push '(fullscreen . maximized) default-frame-alist)
 (push '(undecorated . t) default-frame-alist)
 (push '(internal-border-width . 12) default-frame-alist)
 #+end_src
 
-UIモードの無効化(メニューバー,ツールバー,スクロールバー)
+UI モードの無効化 (メニューバー, ツールバー, スクロールバー)
 #+begin_src emacs-lisp :noweb-ref early-init-body
 (menu-bar-mode -1)
 (tool-bar-mode -1)
 (scroll-bar-mode -1)
 #+end_src
 
-* 入力システム·編集·補完
+* 入力システム,  編集, 補完
 
 **  DDSKK
 [[https://github.com/skk-dev/ddskk][GitHub]] | [[https://ddskk.readthedocs.io/ja/latest/index.html][Docs]]
 
-SKK辞書 > Google APIの順に検索·変換される
+SKK 辞書 > Google API の順に検索·変換される
 
-~pdtk-use-im...~ でOS側のIMEをEmacs内ではOFFにすることで,キーバインドに =<zenkaku/hankaku>= が使える. ~:map~ を用いて検索(isearch)時も有効化している
-=sheep/skk-mode-force-on= 関数で,Emacsでskk-modeおよびskk-latin-mode(半角英数)をデフォルトにしている.Emacs起動時のカーソル色がひらがな用(skk-cursor-hiragana-color)になるため,半角英数用(skk-cursor-latin-color)を明示的に指定している
+~pdtk-use-im...~ で OS 側の IME を Emacs 内では OFF にすることで, キーバインドに <zenkaku/hankaku> が使える. ~:map~ を用いて検索 (isearch )時も有効化している
+~sheep/skk-mode-force-on~ 関数で, Emacs で skk-mode および skk-latin-mode (半角英数) をデフォルトにしている. Emacs 起動時のカーソル色がひらがな用 (skk-cursor-hiragana-color) になるため, 半角英数用 (skk-cursor-latin-color) を明示的に指定している
 
-_!!_ 新しい設定項目を追加するときは =use-package= のどこに記述すると動くか模索が必要.まずは外で試すのもアリ
+_!!_ 新しい設定項目を追加するときは use-package のどこに記述すると動くか模索が必要. まずは外で試すのもアリ
 
 #+begin_src emacs-lisp :noweb-ref ddskk
 (use-package ddskk
@@ -218,36 +218,36 @@ _!!_ 新しい設定項目を追加するときは =use-package= のどこに記
                  '(skk-search-web 'skk-google-cgi-api-for-japanese-input)
                  t))
 
-  ;; isearchでもssk-modeを使用する
+  ;; isearch でも ssk-mode を使用する
   (with-eval-after-load 'isearch
     (add-hook 'isearch-mode-hook #'skk-isearch-mode-setup)
     (add-hook 'isearch-mode-end-hook #'skk-isearch-mode-cleanup))
 
-  ;; PGTK環境でOS側のIMEをOFF
+  ;; PGTK 環境で OS 側の IME を OFF
   (when (featurep 'pgtk)
     (setq pgtk-use-im-context-on-new-connection nil))
 
   (defun sheep/skk-mode-force-on ()
     "skk-modeを有効化し,skk-latin-modeに切り替える"
     (when (fboundp 'skk-mode)
-      ;; skk-modeがオフの場合のみ有効化
+      ;; skk-mode がオフの場合のみ有効化
       (unless (bound-and-true-p skk-mode)
 	(skk-mode 1))
-      ;; skk-latin-modeを有効化
+      ;; skk-latin-mode を有効化
       (skk-latin-mode 1)
-      ;; skk-latin-mode用のカーソル色を指定
+      ;; skk-latin-mode 用のカーソル色を指定
       (when (and (boundp 'skk-cursor-latin-color)
 		 skk-cursor-latin-color)
 	(set-cursor-color skk-cursor-latin-color))))
 
   :hook
-  ;; skk-modeをオン,入力モードをskk-latin-modeに
-  ;; (Emacs起動·ファイルを開く·バッファ切り替え·Vterm起動·Gptel起動·コミットメッセージ編集のとき)
+  ;; skk-mode をオン, 入力モードを skk-latin-mode に
+  ;; (Emacs 起動, ファイルを開く, バッファ切り替え, Vterm 起動, Gptel 起動, コミットメッセージ編集のとき)
   ((after-init find-file vterm-mode gptel-mode git-commit-mode) . sheep/skk-mode-force-on)
-  ;; (Window,Buffer切り替えのとき)
+  ;; (Window, Buffer 切り替えのとき)
   (window-selection-change-functions . (lambda (_) (sheep/skk-mode-force-on)))
 
-  ;; 変換時のfaceを設定
+  ;; 変換時の face を設定
   (skk-load . (lambda ()
                 (set-face-attribute 'skk-henkan-face-default nil
                                     :foreground (sheep/color 'fg-henkan)
@@ -267,14 +267,14 @@ _!!_ 新しい設定項目を追加するときは =use-package= のどこに記
   (("C-<zenkaku-hankaku>" . skk-latin-mode) ; 英数切り替え
    ("<zenkaku-hankaku>"   . skk-kakutei)    ; 確定·日本語切り替え
 
-   ;; isearchでも入力切り替えを有効化
+   ;; isearch でも入力切り替えを有効化
    :map isearch-mode-map
    ("C-<zenkaku-hankaku>" . skk-isearch-skk-mode)  ; 英数切り替え
    ("<zenkaku-hankaku>"   . skk-isearch-newline))) ; 確定·日本語切り替え
 #+end_src
 
 *** 記号の入力
-デフォルトで設定されているものから抜粋(カスタム設定はコード参照)
+デフォルトで設定されているものから抜粋 (カスタム設定はコード参照)
 | z[ | 『  |
 | z] | 』  |
 | z, | ‥ |
@@ -290,13 +290,13 @@ _!!_ 新しい設定項目を追加するときは =use-package= のどこに記
 #+end_src
 
 *** 個人辞書
-個人辞書 ~~/.skk-jisyo~ はユーザーの変換履歴を記録する. M-x ~skk-sisyo-edit~ で編集できるが,基本的に放置でよい
-変換を確定すると誤変換であっても個人辞書に自動登録される.C-gで確定前にキャンセルするのが望ましいが,実は誤変換が登録されても実害は少ない.正しい変換を繰り返し使えばそれが個人辞書の上位に来て,すなわち変換候補の上位に来る.辞書に登録された誤変換は気が向いたときに気づいたら消す程度で十分なようである
+個人辞書 ~~/.skk-jisyo~ はユーザーの変換履歴を記録する. M-x ~skk-sisyo-edit~ で編集できるが, 基本的に放置でよい
+変換を確定すると誤変換であっても個人辞書に自動登録される. C-g で確定前にキャンセルするのが望ましいが, 実は誤変換が登録されても実害は少ない. 正しい変換を繰り返し使えばそれが個人辞書の上位に来て, すなわち変換候補の上位に来る. 辞書に登録された誤変換は気が向いたときに気づいたら消す程度で十分なようである
 
 ** テキスト編集
-キーバインド =C-j= のみ :init で key-translation-map を使用して設定しているのは,パッケージやモードによって設定が上書きされるのを防ぐためである.ただし多くの場合 ~:bind~ に記述しても問題はない
+キーバインド =C-j= のみ :init で key-translation-map を使用して設定しているのは, パッケージやモードによって設定が上書きされるのを防ぐためである. ただし多くの場合 :bind に記述しても問題はない
 
-Sentenceの終端は, ~sentence-ende-base~ および ~sentence-end-without-space~ (日本語対応)で定義されている
+Sentence の終端は, ~sentence-ende-base~ および ~sentence-end-without-space~ (日本語対応) で定義されている
 
 #+begin_src emacs-lisp :noweb-ref text-editing
 (use-package emacs
@@ -305,8 +305,8 @@ Sentenceの終端は, ~sentence-ende-base~ および ~sentence-end-without-space
   (define-key key-translation-map (kbd "C-j") (kbd "<DEL>")) ; DEL=BackSpace
 
   :custom
-  ;; Sentenceの終端(区切り)を指定.M-a,M-e等の基準となる
-  (sentence-end-double-space nil) ; 半角スペース1字で区切りを検知
+  ;; Sentence の終端 (区切り) を指定. M-a, M-e 等の基準となる
+  (sentence-end-double-space nil) ; 半角スペース 1 字で区切りを検知
 
   :config
   (defun sheep/copy-line ()
@@ -339,21 +339,21 @@ Sentenceの終端は, ~sentence-ende-base~ および ~sentence-end-without-space
    ("M-j"     . backward-kill-word)))
 #+end_src
 
-*** 選択·Kill·コピー
-| markからpointまでkill*    | C-k     | Default:C-w                                  |
-| 行削除*                   | M-k     | kill-line>crux-kill-whole-lineに差し替え     |
-| カーソルから行末までkill* | C-c k k | kill-line                                    |
-| markからpointまでcopy*    | C-w     |                                              |
-| 行コピー*                 | M-w     | 自作関数                                     |
-| カーソルから行末までcopy* | C-c w w | 自作関数                                     |
-| Yanking                   | C-y     |                                              |
-| Yankingの履歴*            | M-y     | yank-pop>consult-yank-from-kill-ring差し替え |
-| markのセット              | C-SPACE | Kill-Ringを切りたいときにも用いる            |
-| 全て選択                  | C-x h   |                                              |
+*** 選択, Kill, コピー
+| mark から point まで kill * | C-k     | Default: C-w                                      |
+| 行削除 *                    | M-k     | kill-line > crux-kill-whole-line に差し替え       |
+| カーソルから行末まで kill * | C-c k k | kill-line                                         |
+| mark から point まで copy * | C-w     |                                                   |
+| 行 copy *                   | M-w     | 自作関数                                          |
+| カーソルから行末まで copy * | C-c w w | 自作関数                                          |
+| Yanking                     | C-y     |                                                   |
+| Yanking の履歴 *            | M-y     | yank-pop > consult-yank-from-kill-ring に差し替え |
+| mark のセット               | C-SPACE | Kill-Ring を切りたいときにも用いる                |
+| 全て選択                    | C-x h   |                                                   |
 
 *** 高度な編集
-KillおよびBack KillはKill Ringに記録される
-Sexp系は,Org ModeではElement系のコマンドに置き替わる
+Kill および Back Kill は Kill Ringに 記録される
+Sexp 系は, Org Mode では Element 系のコマンドに置き替わる
 
 | Word 選択*      | M-h | Default:M-@             |
 | Word Kill       | M-d |                         |
@@ -364,7 +364,7 @@ Sexp系は,Org ModeではElement系のコマンドに置き替わる
 | Sexp Backword*  | M-p | Default:C-M-b           |
 | Sexp Back Kill* | M-@ | Default:C-M-<backspace> |
 
-** 入力の機能強化·補完
+** 入力の機能強化, 補完
 *** 入力の機能強化 Crux
 [[https://github.com/bbatsov/crux?tab=readme-ov-file#keybindings][Commands-GitHub]]
 
@@ -530,6 +530,12 @@ _!!_ Org Modeのような構造が複雑で(かつ長い)ファイルではタ�
   :init
   (save-place-mode))
 #+end_src
+
+* コードフォーマット, 文法チェック
+
+** Tree Sitter
+
+*** 導入
 
 * 検索
 
@@ -1251,7 +1257,7 @@ _!!_ 以下のuse-packageは,行番号の表示など,Faceは絡まないが見�
 子ブロックのHeaderには ~:noweb-ref child-block-1~ のように記述する.同名の子ブロックは上から順に親に統合され抽出される
 再帰的に何階層にもできるが,実用上は2階層,せいぜい3階層が限度だろう
 
-**** エスケープ
+*** エスケープ
 コードブロック内の行頭の =*= や =#+= はエスケープが必要.自動で前に =,= が付く.エスケープ記号は抽出時に自動除去される
 
 *** Org Tempo
@@ -1369,17 +1375,17 @@ _!!_ 以下のuse-packageは,行番号の表示など,Faceは絡まないが見�
   :bind ("C-x g" . magit-status))
 #+end_src
 
-| git init                   | C-x g     | Dirvishでディレクトリに移動しておく                                |
-| Magit Burrer Open          | C-x g     |                                                                    |
-| git add                    | s         | ファイル or Untracked files                                        |
-| Unstage                    | u         | ステージングの取り消し                                             |
-| git commit                 | c c       | コミットメッセージを編集しC-c C-cでコミット確定. C-c C-kで取り消し |
-| Buffer 更新                | g         |                                                                    |
-| 管理画面を抜ける           | q         |                                                                    |
-| コミットの実行             | C-c C-c   |                                                                    |
-| コミットのキャンセル       | C-c C-k   |                                                                    |
-| git push                   | P         |                                                                    |
-| ファイルを追跡対象から除外 | K(大文字) | git rm --chashed <file名〉と同じ                                   |
+| git init                   | C-x g      | Dirvish でディレクトリに移動しておく                                  |
+| Magit Burrer Open          | C-x g      |                                                                       |
+| git add                    | s          | ファイル or Untracked files                                           |
+| Unstage                    | u          | ステージングの取り消し                                                |
+| git commit                 | c c        | コミットメッセージを編集し C-c C-c でコミット確定. C-c C-k で取り消し |
+| Buffer 更新                | g          |                                                                       |
+| 管理画面を抜ける           | q          |                                                                       |
+| コミットの実行             | C-c C-c    |                                                                       |
+| コミットのキャンセル       | C-c C-k    |                                                                       |
+| git push                   | P          |                                                                       |
+| ファイルを追跡対象から除外 | K (大文字) | git rm --chashed <file名> と同じ                                      |
 
 *** Mode Line
 =Git:main= のように表示される
