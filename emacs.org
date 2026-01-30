@@ -66,10 +66,13 @@
 <<bookmark>>
 
 ;;;; Mode Settings --------------------------------------------
+<<prog-mode>>
+<<conf-mode>>
 <<org-face>>
 <<org-mode>>
 <<markdown-mode>>
 <<emacs-lisp-mode>>
+<<other-modes>>
 
 ;;;; Subsystem Settings ---------------------------------------
 <<magit>>
@@ -1097,9 +1100,42 @@ _!!_ 以下のuse-packageは,行番号の表示など,Faceは絡まないが見�
                       :foreground (sheep/color 'line)))
 #+end_src
 
-* Web Develop
+* Prog Mode
+
+#+begin_src emacs-lisp :noweb-ref prog-mode
+(use-package html-ts-mode
+  :ensure nil
+  :mode "\\.html?\\'")
+
+(use-package css-ts-mode
+  :ensure nil
+  :mode "\\.css\\'")
+#+end_src
+
+* Conf Mode
+
+#+begin_src emacs-lisp :noweb-ref conf-mode
+(use-package yaml-ts-mode
+  :ensure nil
+  :mode "\\.ya?ml\\'")
+
+(use-package toml-ts-mode
+  :ensure nil
+  :mode "\\.toml\\'")
+
+(use-package json-ts-mode
+  :ensure nil
+  :mode "\\.json\\'")
+#+end_src
 
 * Org Mode
+
+** Terms
+- Tree: 全体のアウトライン(木構造)
+- Subtree: 特定のHeadline下の木構造
+- Headline: 階層的な見出し
+- Element: 見出し(Headline),リスト全体,段落,コードブロックなど｢意味のある塊｣のこと
+- Sentense: デフォルトでは =. ? 。= で終わる文章のこと. どの文字でどのように区切るかは sentence-end 関数でカスタマイズ可能
 
 ** Org Modeの基本
 スムーズにSpeed Commandが使えるように,Org見出しの行頭に移動したとき自動で半角英数(skk-latin-mode)に切り替わる処理を入れている.
