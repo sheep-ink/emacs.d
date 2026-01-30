@@ -1402,13 +1402,21 @@ _!!_ 以下のuse-packageは,行番号の表示など,Faceは絡まないが見�
 ** Magit
 #+begin_src emacs-lisp :noweb-ref magit
 (use-package magit
+  :hook
+  ;; 行末の空白文字の可視化を git-commit-mode では OFF
+  (git-commit-mode . (lambda ()
+                       (setq-local show-trailing-whitespace nil)))
+
   :custom
-  (magit-display-buffer-function #'magit-display-buffer-same-window-except-diff-v1)
-  (magit-bury-buffer-function 'magit-mode-quit-window)
-  (magit-log-section-commit-count 50)
+  (magit-display-buffer-function #'magit-display-buffer-same-window-except-diff-v1) ; 現在の Window で開く
+  (magit-bury-buffer-function 'magit-mode-quit-window) ; 終了時に Buffer を削除
+  (magit-log-section-commit-count 50)                  ; Recent Commits の表示数
+
   :config
-  (advice-add 'magit-commit-diff :override #'ignore)
-  :bind ("C-x g" . magit-status))
+  (advice-add 'magit-commit-diff :override #'ignore) ; Commit 時に Diff を表示しない
+
+  :bind
+  ("C-x g" . magit-status))
 #+end_src
 
 | git init                   | C-x g      | Dirvish でディレクトリに移動しておく                                  |
