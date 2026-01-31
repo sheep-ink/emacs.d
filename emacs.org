@@ -534,11 +534,82 @@ _!!_ Org Modeのような構造が複雑で(かつ長い)ファイルではタ�
   (save-place-mode))
 #+end_src
 
-* コードフォーマット, 文法チェック
+* 文法チェック, コード整形
 
-** Tree Sitter
+** Tree-sitter
 
 *** 導入
+1. Git や build-essential がインストール済であること, M-: ~(treesit-available-p)~ が t (Tree-sitter が有効) であることが前提となる
+
+2. Emacs が対応可能な Tree-sitter ABI のバージョンを調べる
+   Emacs 30 系は当面 ABI 14 対応がつづく見込み. Ubuntu 24.04 LTS の libtree-sitter 0.20.x も ABI 14 対応. 15 の導入は 0.22.0 以降
+
+   #+begin_src shell
+# Emacs が対応可能な Tree-sitter ABI のバージョン確認
+emacs --batch --eval "(message \"Tree-sitter ABI: %s\" (treesit-library-abi-version nil))"
+
+# システムの libtree-sitter のバージョン確認
+dpkg -l | grep tree-sitter
+   #+end_src
+
+3. [[https://github.com/tree-sitter-grammars][Tree-sitter Grammars (新コミュニティ)]] または [[https://github.com/tree-sitter][tree-sitter (旧公式)]] から必要な文法を ~/.emacs.d/tree-sitter/ に配置する
+
+   HTML: https://github.com/tree-sitter/tree-sitter-html
+   TOML: https://github.com/tree-sitter-grammars/tree-sitter-toml
+
+   HTML の導入例
+
+   1) M-x ~treesit-install-language-grammar~
+   2) Language: ~html~ > RET > y
+   3) 上の URL を指定
+   4) tag or branch: default branch のまま RET
+   5) subdirectory: default "src" のまま RET
+   6) C compiler: default auto-detect のまま RET
+   7) C++ compiler: default auto-detect のまま RET
+   8) Install to: default ~/.emacs.d/tree-sitter のまま RET
+   9) M-: ~(treesit-language-available-p 'html)~ で t が返ってくれば導入成功
+
+***  ABI 15 用の文法を ABI 14 用に変換する
+文法が ABI 15 用の場合, ABI 14 環境に導入しようとすると以下のようなエラーが出るため, 変換する必要がある
+=⛔ Warning (treesit): The installed language grammar for css cannot be located or has problems (version-mismatch): 15=
+
+1. 環境整備 (初回のみ)
+   - Git (グローバルインストール版で OK. npm 等は不要)
+   - Tree-sitter をインストールし, バージョン確認する
+
+      #+begin_src shell
+   cargo install tree-sitter-cli
+
+   tree-sitter --version
+      #+end_src
+
+2. 文法リポジトリをクローン
+
+   CSS: ~git clone https://github.com/tree-sitter/tree-sitter-css.git~
+   YAML: ~git clone https://github.com/tree-sitter-grammars/tree-sitter-yaml.git~
+
+3. ABI 14 用にビルド
+   _!!_ ファイル名は書き替えて実行すること
+
+   #+begin_src shell
+# 移動 !!yaml 書き替え
+cd tree-sitter-yaml
+
+# ABI 14 用にビルド
+tree-sitter generate --abi=14
+
+# 共用ライブラリをビルド
+tree-sitter build
+
+# .emacs.d にコピー !!yaml 2 ヶ所書き替え
+cp yaml.so ~/.emacs.d/tree-sitter/libtree-sitter-yaml.so
+   #+end_src
+
+4. 動作確認 (YAML の場合)
+   1) 再起動後, *scratch* 等で M-x ~yaml-ts-mode~ を実行. エラーが出なければ基本的に認識されている
+   2) 実際にコードを入力してみて, シンタックスハイライトや自動インデントが効くか確認
+   3) M-: ~(treesit-parser-create 'yaml)~ RET で, エラーが出なければ OK
+   4) M-: ~(treesit-language-available-p 'yaml)~ RET で, t が返れば OK
 
 * 検索
 
