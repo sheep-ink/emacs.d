@@ -1517,8 +1517,14 @@ _!!_ 以下のuse-packageは,行番号の表示など,Faceは絡まないが見�
 #+begin_src emacs-lisp :noweb-ref vterm
 (use-package vterm
   :commands vterm
+  :hook
+  ;; 行末の空白文字の可視化を vterm-mode では OFF
+  (vterm-mode . (lambda ()
+                  (setq-local show-trailing-whitespace nil)))
+
   :config
   (setq vterm-max-scrollback 10000)
+
   :bind
   (("C-x v"   . vterm)                 ; Vterm の起動
    ("C-c 3 v" . vterm-other-window)    ; Vterm を新しいウィンドウで起動
