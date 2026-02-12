@@ -513,11 +513,21 @@ _!!_ abbrev の既存の定義を書き替える場合, ~M-x edit-abbrevs~ で�
       ("zn" ":noweb-ref" nil :count 0))))
 #+end_src
 
-複数のmodeを指定するときは以下のように全体を()で囲う
+複数の mode を指定するときは以下のように全体を () で囲う
 #+begin_src emacs-lisp
 :hook
 ((org-mode . abbrev-mode)
  (markdown-mode . abbrev-mode))
+#+end_src
+
+*** 上書き入力 Delsel
+選択範囲がアクティブなときに文字を入力すると, 選択範囲を削除してから文字を挿入する
+
+#+begin_src emacs-lisp :noweb-ref input-completion
+(use-package delsel
+  :ensure nil
+  :config
+  (delete-selection-mode))
 #+end_src
 
 *** カッコの入力補完 Electric Pair
