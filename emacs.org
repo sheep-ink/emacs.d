@@ -894,17 +894,28 @@ _!!_ consult-line で ,(カンマ) が検索対象にならないのは, Orderle
   (add-to-list 'marginalia-annotators '(file builtin)))
 #+end_src
 
+*** 最近開いたファイル recentf
+Crux パッケージと組み合わせると, ミニバッファに一覧が表示できる
+
+#+begin_src emacs-lisp :noweb-ref mini-buffer
+(use-package recentf
+  :ensure nil
+  :config
+  (setopt recentf-max-saved-items 1024) ;; 保存する履歴の最大数
+  (recentf-mode))
+#+end_src
+
 ** 自動再読み込み Auto Revert
-Bufferで開いているファイルが外部で変更されたとき,自動で再読み込みを行なう.Gitのブランチ切り替え,PrettierやLint系ツールの実行時など
+Buffer で開いているファイルが外部で変更されたとき, 自動で再読み込みを行なう. Git のブランチ切り替え, Prettier や Lint 系ツールの実行時など
 
 #+begin_src emacs-lisp :noweb-ref auto-revert
 (use-package autorevert
   :ensure nil
-  :hook (after-init . global-auto-revert-mode) ; 起動後にAuto Revertを有効化
+  :hook (after-init . global-auto-revert-mode) ; 起動後に Auto Revert を有効化
   :custom
-  (global-auto-revert-non-file-buffers t) ; ディレクトリのBufferやBufferリスト等も再読み込みの対象にする
+  (global-auto-revert-non-file-buffers t) ; ディレクトリの BufferやBuffer リスト等も再読み込みの対象にする
   (auto-revert-verbose nil)               ; 再読み込み時のメッセージを非表示にする
-  (auto-revert-check-vc-info t))          ; Gitのステータス情報も再読み込みの対象にする
+  (auto-revert-check-vc-info t))          ; Git のステータス情報も再読み込みの対象にする
 #+end_src
 
 * ワークスペース Workspace
