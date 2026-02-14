@@ -541,15 +541,25 @@ _!!_ abbrev の既存の定義を書き替える場合, ~M-x edit-abbrevs~ で�
   (electric-pair-mode))
 #+END_SRC
 
+*** キャメルケース単位の文字区切り Subword
+word 系のコマンドにおいて =camelCase= の大文字の =C= の部分が区切りと認識される
+
+#+begin_src emacs-lisp :noweb-ref ui-and-base
+(use-package subword
+  :ensure nil
+  :init
+  (global-subword-mode))
+#+end_src
+
 *** 可視テキスト内移動 Avy
 [[https://github.com/abo-abo/avy][GitHub]]
 
-_!!_ Org Modeのような構造が複雑で (かつ長い) ファイルではタイムアウトエラーが生じやすいので =avy-temeout-seconds= の値を =0.6= 程度にしておく
+_!!_ 慣れないうちはタイムアウトエラーが生じやすい. =avy-temeout-seconds= の値を =0.7= 程度にしておく
 
 #+begin_src emacs-lisp :noweb-ref input-completion
 (use-package avy
   :config
-  (setopt avy-timeout-seconds 0.6)                ; 入力後の待機時間
+  (setopt avy-timeout-seconds 0.7)                ; 入力後の待機時間
   (setopt avy-keys '(?a ?s ?d ?f ?g ?h ?j ?k ?l)) ; ヒントに使用する文字 (ホームポジション優先)
   (setopt avy-single-candidate-jump t)            ; 候補が 1 つだけの時は自動的にジャンプ
 
@@ -689,13 +699,6 @@ cp yaml.so ~/.emacs.d/tree-sitter/libtree-sitter-yaml.so
 * UI & Base
 
 画面表示 (Face 以外) と基本的な挙動を設定する
-
-#+begin_src emacs-lisp :noweb-ref ui-and-base
-(use-package subword
-  :ensure nil
-  :init
-  (global-subword-mode))
-#+end_src
 
 #+begin_src emacs-lisp :noweb-ref ui-and-base
 (use-package emacs
