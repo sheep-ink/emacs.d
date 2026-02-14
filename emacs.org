@@ -201,11 +201,11 @@ _!!_ 新しい設定項目を追加するときは use-package のどこに記�
           ("]"  nil "｣")
 	  ("!"  nil "!")
 	  ("?"  nil "?")
-          (";"  nil ";")
-          (":"  nil ":")
+	  ("-"  nil "-")
+          ("z;"  nil "; ")
+          ("z:"  nil ": ")
 	  ("z," nil "·")
-	  ("z/" nil "/")
-	  ("z-" nil "-")))
+	  ("z/" nil "/")))
 
   ;; Google API for Japanese Input を有効化
   (with-eval-after-load 'skk-vars
@@ -250,9 +250,10 @@ _!!_ 新しい設定項目を追加するときは use-package のどこに記�
                                     :background (sheep/color 'bg-henkan))))
 
   :custom
-  (skk-large-jisyo "/usr/share/skk/SKK-JISYO.L") ; 基本辞書
-  (skk-kutouten-type 'en)                        ; 句読点は英文スタイル
+  (skk-use-azik t)                                 ; AZIK を有効化
+  (skk-large-jisyo "/usr/share/skk/SKK-JISYO.L")   ; 基本辞書
   (skk-kuten-touten-alist '((en . (". " . ", ")))) ; 半角の ,. を句読点として定義
+  (skk-kutouten-type 'en)                          ; 句読点は英文スタイル
 
   ;; カーソル色
   (skk-cursor-latin-color (sheep/color 'cursor-en))    ; 英数

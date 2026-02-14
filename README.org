@@ -1,8 +1,10 @@
-* ノート·ライフログ·文芸的Web制作のための極私的Emacs設定
+* ノート, ライフログ, 文芸的 Web 制作のための極私的 Emacs 設定
 
 入力システムに SSK (DDSKK) を採用しています
 
-Org Mode ベースで文芸的プログラミング (静的サイトジェネレーター Hugo でのテーマ作成等) を行なうためのチューニングをしています
+Hyper キーや SandS (スペースキーを Shift としても使う) を前提に, キーバインドを大きく改変しています
+
+Org Mode ベースで文芸的プログラミング (静的サイトジェネレーター Hugo でのテーマ作成等) を行なうためのチューニングをしていく予定です
 
 Emacs の設定も Org Mode で書き, ~earyly-init.el~ や ~init.el~ として抽出しています
 
@@ -14,4 +16,4 @@ Emacs の設定も Org Mode で書き, ~earyly-init.el~ や ~init.el~ として�
 
 - *OS* : Ubuntu 24.04 LTS
 - *Emacs* : GNU Emacs 30.2 (PGTK build)
-- *Input Method* : DDSKK
+- *Input Method* : DDSKK (AZIK)
