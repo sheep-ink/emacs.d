@@ -738,6 +738,18 @@ cp yaml.so ~/.emacs.d/tree-sitter/libtree-sitter-yaml.so
     (let ((new-window (split-window-right)))
       (select-window new-window)))
 
+  (defun sheep/other-window-do (count)
+    "other-window で任意のコマンドを実行 > カーソルを元の Window に戻す. COUNT は other-window に渡す Window 数"
+    (interactive "p")
+    (save-selected-window
+      (other-window count)
+      (let* ((prompt (format "Other-window (%s): " (buffer-name)))
+             (key    (read-key-sequence prompt))
+             (cmd    (key-binding key)))
+        (cond
+         ((commandp cmd) (call-interactively cmd))
+         (key            (user-error "コマンドが見つかりません: %s" (key-description key)))))))
+
   (defun sheep/find-home ()
     "HOME.org を開く"
     (interactive)
@@ -776,7 +788,8 @@ cp yaml.so ~/.emacs.d/tree-sitter/libtree-sitter-yaml.so
 
    ;; C-; . avy-goto-char-timer
    ;; M-; . crux-transpose-windows
-   ("H-;" . other-window) ; 他の Window に移動
+   ("s-;" . sheep/other-window-do) ; other-window で任意のコマンドを実行
+   ("H-;" . other-window) ; other-window に移動
 
    ("M-[" . scroll-down-command)      ; 上にスクロール
    ("M-]" . scroll-up-command)        ; 下にスクロール
