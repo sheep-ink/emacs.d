@@ -728,6 +728,7 @@ cp yaml.so ~/.emacs.d/tree-sitter/libtree-sitter-yaml.so
   (scroll-conservatively 101)    ; スクロール時の画面飛びを防止
   (scroll-margin 0)              ; スクロールマージンなし
   (show-trailing-whitespace t)   ; 行末の空白文字を可視化
+  (show-paren-style 'mixed)      ; カッコの範囲が画面からはみ出るほど長いときは範囲をハイライト
   (initial-scratch-message nil)  ; *scratch* の初期メッセージを非表示に
   (initial-major-mode 'org-mode) ; *scratch* の初期モードを Org Modeに
 
