@@ -68,9 +68,9 @@
 <<other-modes>>
 
 ;;;; Subsystem Settings ---------------------------------------
-<<magit>>
-<<vterm>>
-<<gptel>>
+<<git>>
+<<shell>>
+<<ai>>
 
 <<file-footer>>
 #+end_src
@@ -1538,7 +1538,7 @@ Headline で H-c を押すと Tag を設定できる
 * サブシステム Sub Sytems
 
 ** Magit
-#+begin_src emacs-lisp :noweb-ref magit
+#+begin_src emacs-lisp :noweb-ref git
 (use-package magit
   :hook
   ;; 行末の空白文字の可視化を git-commit-mode では OFF
@@ -1583,15 +1583,16 @@ Headline で H-c を押すと Tag を設定できる
 | ！ | Error             |
 
 ** Vterm
+
 コピーモードに切り替えたときは, テキストを選択 > RET でコピーが実行され, コピーモードから抜ける
 
-#+begin_src emacs-lisp :noweb-ref vterm
+#+begin_src emacs-lisp :noweb-ref shell
 (use-package vterm
   :commands vterm
   :hook
-  ;; 行末の空白文字の可視化を vterm-mode では OFF
   (vterm-mode . (lambda ()
-                  (setq-local show-trailing-whitespace nil)))
+                  (setq-local show-trailing-whitespace nil) ; 行末の空白文字の可視化を vterm-mode では OFF
+                  (setq-local inhibit-read-only t)))
 
   :config
   (setq vterm-max-scrollback 10000)
@@ -1611,16 +1612,33 @@ Headline で H-c を押すと Tag を設定できる
    ("C-w"   . vterm-copy-mode)))       ; コピーモードに切り替え
 #+end_src
 
-| Clear                            | C-l     |                                                                |
-| Log Out                          | C-d     | 入力時には文字削除となる                                       |
+| Clear   | C-l |                          |
+| Log Out | C-d | 入力時には文字削除となる |
 
 *** Install
 1.Vterm を動かすために必要な CMake やライブラリをインストール
    ~sudo apt install cmake libtool-bin libvterm-dev~
 2. init.el に =use package vterm...= で設定を記述し再起動 > =M-x vterm=
 
+** Claude Code IDE
+#+begin_src emacs-lisp :noweb-ref ai
+(use-package exec-path-from-shell
+  :ensure t
+  :config
+  (exec-path-from-shell-initialize))
+#+end_src
+#+begin_src emacs-lisp :noweb-ref ai
+(use-package claude-code-ide
+  :vc (:url "https://github.com/manzaltu/claude-code-ide.el" :rev :newest)
+  :init
+  (setq claude-code-ide-terminal-backend 'vterm)
+  :config
+  (claude-code-ide-emacs-tools-setup)
+  :bind ("C-c C-'" . claude-code-ide-menu))
+#+end_src
+
 ** Gptel
-#+begin_src emacs-lisp :noweb-ref gptel
+#+begin_src emacs-lisp :noweb-ref ai
 (use-package gptel
   :config
   (setq gptel-model 'gemini-2.5-flash) ; デフォルトで使用するモデル
