@@ -840,26 +840,38 @@ cp yaml.so ~/.emacs.d/tree-sitter/libtree-sitter-yaml.so
 #+begin_src emacs-lisp :noweb-ref buffer
 (use-package popper
   :init
+  ;; Pop up させる Buffer を指定 (Buffer 名の正規表現 or major-mode シンボル)
   (setq popper-reference-buffers
-        '("Output\\*$"
-          "\\*Async Shell Command\\*"
-          help-mode
-          compilation-mode
+        '("\\*memo\\*"
+          "\\*Output\\*$"             ; *Output* バッファ
+          "\\*Async Shell Command\\*" ; 非同期シェルコマンドの出力バッファ
+          help-mode                   ; ヘルプバッファ
+          compilation-mode            ; コンパイル出力バッファ
 
           ;; 警告・エラー系
-          "\\*Warnings\\*"
-          "\\*Compile-Log\\*"
-          "\\*Native-compile-Log\\*"
-          "\\*Backtrace\\*"
-          "\\*Error\\*"
-          backtrace-mode))
-  (popper-mode +1)
-  (popper-echo-mode +1)
+          "\\*Warnings\\*"           ; 警告メッセージ
+          "\\*Compile-Log\\*"        ; バイトコンパイルのログ
+          "\\*Native-compile-Log\\*" ; ネイティブコンパイルのログ
+          "\\*Backtrace\\*"          ; エラー時のバックトレース
+          "\\*Error\\*"              ; エラーメッセージ
+          backtrace-mode))           ; バックトレース系 major-mode
 
-  ;; :bind
-  ;; (:map popper-mode-map
-  ;;  ("M-g" . kill-buffer-and-window))
-  ) ; 現在の Buffer を Kill して Window を閉じる
+  (popper-mode 1)
+
+  :bind
+  (("C-x m" . sheep/open-memo-popup)
+   :map popper-mode-map
+   ("M-g" . kill-buffer-and-window)) ; ポップアップ Buffer を Kill して Window を閉じる
+
+  :config
+  (defun sheep/open-memo-popup ()
+    "*memo* を markdown-mode で開き, Popper で表示する"
+    (interactive)
+    (let ((buf (get-buffer-create "*memo*")))
+      (with-current-buffer buf
+        (unless (derived-mode-p 'markdown-mode)
+          (markdown-mode)))
+      (display-buffer buf))))
 #+end_src
 
 *** 自動再読み込み Auto Revert
