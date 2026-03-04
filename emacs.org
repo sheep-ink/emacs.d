@@ -709,8 +709,8 @@ cp yaml.so ~/.emacs.d/tree-sitter/libtree-sitter-yaml.so
     (pixel-scroll-precision-mode 1))
 
   :bind
-  (("H-g" . kill-current-buffer)    ; 現在の Buffer を Kill する
-   ("M-g" . delete-window)          ; 現在の Window を閉じる !! popper-mode では kill-buffer-and-window
+  (("H-g" . kill-current-buffer) ; 現在の Buffer を Kill する
+   ("M-g" . delete-window)       ; 現在の Window を閉じる !! popper-mode では kill-buffer-and-window
 
    ;; C-q . consult-buffer
    ("M-q" . ibuffer)          ; Buffer の管理
@@ -742,10 +742,10 @@ cp yaml.so ~/.emacs.d/tree-sitter/libtree-sitter-yaml.so
    ("H-@ l" . sheep/find-lifelog) ; LIFELOG.org を開く
    ("H-@ i" . sheep/find-init)    ; 設定ファイル (emacs.org) を開く
    ("H-@ s" . scratch-buffer)     ; *scratch* を開く
-   ;; H-@ b . tab-previous
+   ;; H-@ b . tab-switcher
    ;; H-@ f . tab-next
    ("H-@ p" . previous-buffer)    ; 前の Buffer
-   ("H-@ n" . next-buffer))      ; 次の Buffer
+   ("H-@ n" . next-buffer))       ; 次の Buffer
 
   :custom
   ;; Interaction
@@ -1038,12 +1038,13 @@ consult-buffer に Tab の一覧を組み込むことも可能
 (use-package tab-bar
   :ensure nil
   :bind
-  (("H-@ b" . tab-previous) ; 前の Tab
+  (("H-@ b" . tab-switcher) ; Tab の一覧から切り替え
    ("H-@ f" . tab-next))    ; 次の Tab
 
   :custom
   (tab-bar-show nil)                   ; Tab Bar を常に非表示
   (tab-bar-new-tab-choice "*scratch*") ; 新規 Tab で *scratch* を表示
+  (tab-bar-new-tab-to 'rightmost)      ; 新規 Tab を末尾に追加
 
   :config
   (tab-bar-mode 1))
