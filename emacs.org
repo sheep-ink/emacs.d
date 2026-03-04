@@ -1010,26 +1010,36 @@ desktop-save-mode が保存·復元できるセッションは以下のとおり
   (desktop-load-locked-desktop t) ; ロックファイルがあっても警告なしで読み込む
   (desktop-restore-eager 10)      ; 起動時に即時復元するバッファ数 (残りは遅延復元)
   (desktop-globals-to-save nil)   ; グローバル変数を保存しない (savehist-mode との競合防止)
-  (desktop-save-mode t))
+
+  :config
+  (desktop-save-mode 1))
 #+end_src
 
 ** ウィンドウ構成の管理 Tab Bar Mode
+Tab とは ｢Frame をどのように Window に分割し, それぞれに何の Buffer を表示しているか｣ という状態を記録したもの
+tab-bar-mode は 1 つ以上の Tab を保存·切り替えるための機能である
+
+desktop-save-mode と組み合わせることで, Workspace 風の使い方が実現できる
+consult-buffer に Tab の一覧を組み込むことも可能
 
 #+begin_src emacs-lisp :noweb-ref tab-bar
 (use-package tab-bar
   :ensure nil
-  :init
-  (tab-bar-mode 1)
-  (tab-bar-history-mode 1)
-
   :bind
-  ("H-@ b" . tab-previous)
-  ("H-@ f" . tab-next)
+  (("H-@ b" . tab-previous) ; 前の Tab
+   ("H-@ f" . tab-next))    ; 次の Tab
 
   :custom
-  (tab-bar-show nil)
-  (tab-bar-new-tab-choice sheep/home-org-file))
+  (tab-bar-show nil)                   ; Tab Bar を常に非表示
+  (tab-bar-new-tab-choice "*scratch*") ; 新規 Tab で *scratch* を表示
+
+  :config
+  (tab-bar-mode 1))
 #+end_src
+
+| tab-new    | C-x t 2 |
+| tab-close  | C-x t 0 |
+| tab-rename | C-x t r |
 
 * ディレクトリ Directory
 
