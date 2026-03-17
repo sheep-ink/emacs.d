@@ -567,34 +567,39 @@ _!!_ 慣れないうちはタイムアウトエラーが生じやすい. =avy-te
   (("C-;" . avy-goto-char-timer)))
 #+end_src
 
-** 履歴の管理 History
-*** Undo  & Redo
-永続化を有効にすることで, Emacs を再起動しても, 再起動前の作業履歴を辿れるようになる
-Emacs の旧来の undo コマンドは Redo の動作を含む. 純粋に過去に戻る undo-only と, 純粋に未来に進む (やり直す) undo-redo を組み合わせることで一般的な履歴管理ができる
+** 作業履歴の管理 History
+*** 標準的な Undo / Redo
+Emacs 旧来の undo コマンドは Redo の動作を含む. 純粋に過去に戻る undo-only と, 純粋に未来に進む undo-redo を組み合わせることで一般的な履歴管理ができる
 
 #+begin_src emacs-lisp :noweb-ref history
 (use-package emacs
-  :custom
-  (undo-history-save-mode t)                                        ; undo 履歴の永続化
-  (undo-history-directory (locate-user-emacs-file "undo-history/")) ; undo 履歴の保存先
-
-  ;; undo 履歴の上限設定
-  (undo-limit 800000)           ; 通常は約 800 KB まで保存
-  (undo-strong-limit 1200000)   ; 連続編集時は 約1.2MB まで保存
-  (undo-outer-limit 120000000)  ; 絶対上限は 約120MB. 巨大なファイルの一括置換時などのストッパー
-
+  :ensure nil
   :bind
   (("C-z" . undo-only)
    ("M-z" . undo-redo)))
 #+end_src
 
-*** Vundo
+*** 作業履歴の永続化 Undo Fu Session
+Emacs 標準機能が充実し undo-fu の必要性は薄れたが, 作業履歴を永続化させるなら undo-fu-session は必要
+
+#+begin_src emacs-lisp :noweb-ref history
+(use-package undo-fu-session
+  :config
+  ;; 永続化から除外するファイルパターン
+  (setq undo-fu-session-incompatible-files
+        '("/COMMIT_EDITMSG\\'"    ; コミットメッセージ編集 Buffer
+          "/git-rebase-todo\\'")) ; リベース操作ファイル
+
+  (undo-fu-session-global-mode)) ; 全 Buffer で有効化
+#+end_src
+
+*** 作業履歴ツリー Vundo
 #+begin_src emacs-lisp :noweb-ref history
 (use-package vundo
+  :bind ("H-z" . vundo) ; 履歴ツリーの表示
   :custom
-  (vundo-glyph-alist vundo-unicode-symbols) ; 履歴ツリー (記号や罫線) の表示に unicode のグリフセットを使用
+  (vundo-glyph-alist vundo-unicode-symbols)) ; 履歴ツリー (記号や罫線) の表示に unicode のグリフセットを使用
 
-  :bind ("H-z" . vundo)) ; 履歴ツリーの表示
 #+end_src
 
 | b, f   | undo, redo 方向へ移動                      |
